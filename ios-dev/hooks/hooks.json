@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "hooks/deny-ios-dev-out-of-scope.sh",
+        "failClosed": true
+      },
+      {
+        "command": "hooks/deny-xcode-bypass.sh",
+        "failClosed": true
+      },
+      {
+        "command": "hooks/agent-session-lifecycle.sh"
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh"
+      }
+    ],
+    "beforeMCPExecution": [
+      {
+        "command": "hooks/deny-ios-dev-out-of-scope.sh",
+        "failClosed": true
+      },
+      {
+        "command": "hooks/deny-mcp-derived-data-copy.sh",
+        "matcher": "build_sim|test_sim|build_run_sim|clean",
+        "failClosed": true
+      },
+      {
+        "command": "hooks/witness-mcp-derived-data-copy.sh",
+        "matcher": "build_sim|test_sim|build_run_sim",
+        "failClosed": true
+      },
+      {
+        "command": "hooks/agent-session-lifecycle.sh",
+        "matcher": "build_sim|test_sim|build_run_sim|clean"
+      }
+    ],
+    "afterMCPExecution": [
+      {
+        "command": "hooks/witness-mcp-derived-data-copy.sh",
+        "matcher": "build_sim|test_sim|build_run_sim",
+        "failClosed": true
+      },
+      {
+        "command": "hooks/agent-session-lifecycle.sh",
+        "matcher": "build_sim|test_sim|build_run_sim|clean"
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": "hooks/deny-ios-dev-out-of-scope.sh",
+        "failClosed": true
+      },
+      {
+        "command": "hooks/deny-xcode-bypass.sh",
+        "matcher": "Read|TabRead",
+        "failClosed": false
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "hooks/deny-ios-dev-out-of-scope.sh",
+        "failClosed": true
+      },
+      {
+        "command": "hooks/deny-xcode-bypass.sh",
+        "matcher": "Grep|Glob|Write|Delete|StrReplace",
+        "failClosed": true
+      }
+    ],
+    "stop": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh",
+        "timeout": 30
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh",
+        "timeout": 60
+      }
+    ]
+  }
+}

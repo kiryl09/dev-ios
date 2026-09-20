@@ -1,0 +1,35 @@
+schemaVersion: 1
+activeSessionDefaultsProfile: app
+sessionDefaultsProfiles:
+  app:
+    derivedDataPath: /Users/logout/Library/Developer/Xcode/DerivedData/PluginProbe-evxhigvmgzgfkmajbvmablyptaxh
+    projectPath: /Users/logout/Projects/CursorPlugins/tests/xcode-sample_project/PluginProbe.xcodeproj
+    scheme: PluginProbe
+    configuration: Debug
+    simulatorName: iPhone 17 Pro (Watch)
+    simulatorId: 81BEB468-3AC5-4D1D-BB60-9466B14EF180
+    simulatorPlatform: iOS Simulator
+    useLatestOS: false
+    platform: iOS Simulator
+  tests:
+    derivedDataPath: /Users/logout/Library/Developer/Xcode/DerivedData/PluginProbe-evxhigvmgzgfkmajbvmablyptaxh
+    projectPath: /Users/logout/Projects/CursorPlugins/tests/xcode-sample_project/PluginProbe.xcodeproj
+    scheme: PluginProbeTests
+    configuration: Debug
+    simulatorName: iPhone 17 Pro (Watch)
+    simulatorId: 81BEB468-3AC5-4D1D-BB60-9466B14EF180
+    simulatorPlatform: iOS Simulator
+    useLatestOS: false
+    platform: iOS Simulator
+    extraArgs: ["-resultBundlePath", "/Users/logout/Library/Developer/Xcode/DerivedData/PluginProbe-evxhigvmgzgfkmajbvmablyptaxh/Logs/PluginProbeTests.xcresult"]
+    testProductsPath: /Users/logout/Library/Developer/Xcode/DerivedData/PluginProbe-evxhigvmgzgfkmajbvmablyptaxh/PluginProbeTests.xctestproducts
+sessionDefaults:
+  derivedDataPath: /Users/logout/Library/Developer/Xcode/DerivedData/PluginProbe-evxhigvmgzgfkmajbvmablyptaxh
+  projectPath: /Users/logout/Projects/CursorPlugins/tests/xcode-sample_project/PluginProbe.xcodeproj
+  scheme: PluginProbe
+  configuration: Debug
+  simulatorName: iPhone 17 Pro (Watch)
+  simulatorId: 81BEB468-3AC5-4D1D-BB60-9466B14EF180
+  simulatorPlatform: iOS Simulator
+  useLatestOS: false
+  platform: iOS Simulator

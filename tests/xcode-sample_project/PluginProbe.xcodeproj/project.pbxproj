@@ -1,0 +1,353 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000010000000000000001 /* PluginProbeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* PluginProbeApp.swift */; };
+		A10000010000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000002 /* ContentView.swift */; };
+		A10000020000000000000001 /* PluginProbeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000020000000000000001 /* PluginProbeTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A30000020000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A40000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A80000010000000000000001;
+			remoteInfo = PluginProbe;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A20000010000000000000001 /* PluginProbeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginProbeApp.swift; sourceTree = "<group>"; };
+		A20000010000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A20000020000000000000001 /* PluginProbeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginProbeTests.swift; sourceTree = "<group>"; };
+		A50000010000000000000001 /* PluginProbe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PluginProbe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A50000020000000000000001 /* PluginProbeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PluginProbeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A60000010000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A60000020000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A70000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A70000010000000000000001 /* PluginProbe */,
+				A70000020000000000000001 /* PluginProbeTests */,
+				A70000000000000000000002 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A70000000000000000000002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A50000010000000000000001 /* PluginProbe.app */,
+				A50000020000000000000001 /* PluginProbeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A70000010000000000000001 /* PluginProbe */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000001 /* PluginProbeApp.swift */,
+				A20000010000000000000002 /* ContentView.swift */,
+			);
+			path = PluginProbe;
+			sourceTree = "<group>";
+		};
+		A70000020000000000000001 /* PluginProbeTests */ = {
+			isa = PBXGroup;
+			children = (
+				A20000020000000000000001 /* PluginProbeTests.swift */,
+			);
+			path = PluginProbeTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A80000010000000000000001 /* PluginProbe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A90000010000000000000001 /* Build configuration list for PBXNativeTarget "PluginProbe" */;
+			buildPhases = (
+				AA0000010000000000000001 /* Sources */,
+				A60000010000000000000001 /* Frameworks */,
+				AB0000010000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PluginProbe;
+			productName = PluginProbe;
+			productReference = A50000010000000000000001 /* PluginProbe.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A80000020000000000000001 /* PluginProbeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A90000020000000000000001 /* Build configuration list for PBXNativeTarget "PluginProbeTests" */;
+			buildPhases = (
+				AA0000020000000000000001 /* Sources */,
+				A60000020000000000000001 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AC0000020000000000000001 /* PBXTargetDependency */,
+			);
+			name = PluginProbeTests;
+			productName = PluginProbeTests;
+			productReference = A50000020000000000000001 /* PluginProbeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A40000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A80000010000000000000001 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					A80000020000000000000001 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = A80000010000000000000001;
+					};
+				};
+			};
+			buildConfigurationList = A90000000000000000000001 /* Build configuration list for PBXProject "PluginProbe" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A70000000000000000000001;
+			productRefGroup = A70000000000000000000002 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A80000010000000000000001 /* PluginProbe */,
+				A80000020000000000000001 /* PluginProbeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AB0000010000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA0000010000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000002 /* ContentView.swift in Sources */,
+				A10000010000000000000001 /* PluginProbeApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000020000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000020000000000000001 /* PluginProbeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AC0000020000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A80000010000000000000001 /* PluginProbe */;
+			targetProxy = A30000020000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AD0000010000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AD0000010000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AD0000020000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cursor.pluginprobe;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AD0000020000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cursor.pluginprobe;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AD0000030000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cursor.pluginprobe.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PluginProbe.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PluginProbe";
+			};
+			name = Debug;
+		};
+		AD0000030000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cursor.pluginprobe.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PluginProbe.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PluginProbe";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A90000000000000000000001 /* Build configuration list for PBXProject "PluginProbe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD0000010000000000000001 /* Debug */,
+				AD0000010000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A90000010000000000000001 /* Build configuration list for PBXNativeTarget "PluginProbe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD0000020000000000000001 /* Debug */,
+				AD0000020000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A90000020000000000000001 /* Build configuration list for PBXNativeTarget "PluginProbeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD0000030000000000000001 /* Debug */,
+				AD0000030000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A40000000000000000000001 /* Project object */;
+}

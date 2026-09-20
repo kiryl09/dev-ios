@@ -1,0 +1,4 @@
+__pycache__/
+.gate-probe.*
+.DS_Store
+**/.xcodebuildmcp/derived-data.local

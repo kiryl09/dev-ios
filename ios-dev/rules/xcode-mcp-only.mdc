@@ -1,0 +1,24 @@
+---
+description: Block Shell/file access to Xcode and Simulator; MCP only
+alwaysApply: true
+---
+
+# Xcode and Simulator: MCP only
+
+**Scope:** Binding only when `ios-dev-scope.mdc` marks this workspace active (iOS Simulator workflow). When inactive, ignore this entire rule — use Shell `xcodebuild` or **`xcode-tools`** on macOS.
+
+Build, test, launch, boot, and shutdown on **Simulator** go through `XcodeBuildMCP` or **`xcode-tools`** (in-window). **`xcode-tools`** also applies to macOS targets when Xcode is open; this rule’s Shell ban applies only while ios-dev-scope is **active**. Do not use the Shell tool (or any other non-MCP tool) for those operations.
+
+Never run, chain, or wrap any of these in Shell, including after `pkill`, `kill`, `nohup`, or `sleep`:
+
+- `xcodebuild` (including `test-without-building`)
+- `xcrun`, `simctl`, `xcode-select`
+- `instruments`, `xed`, `agvtool`, `ibtool`, `actool`
+
+**Reading logs and crashes is allowed.** Use Read, Grep, or Glob on runtime console logs, crash reports, and Diagnostics for the host app on Simulator or device, including paths under `~/Library/Logs/` (for example `CoreSimulator`, `DiagnosticReports`), `~/Library/Developer/CoreSimulator/Devices/…/data/Library/Logs/`, and log file paths returned by MCP (`build_run_sim`, `test_sim`, `GetBuildLog`). `debug_attach_sim` does not replace those for a crash that already happened; read the on-disk logs when investigating a prior crash.
+
+Do not **write** or **delete** under `DerivedData`, `SourcePackages`, `CoreSimulator`, `~/Library/Developer/Xcode`, `~/Library/Developer/CoreSimulator`, or `/Applications/Xcode.app` unless the user explicitly asks. Do not `kill` / `pkill` `xcodebuild` PIDs from hygiene `status`.
+
+Hooks in this plugin run only from the Cursor plugin copy (`hooks/deny-xcode-bypass.sh`), never from the repository tree.
+
+If MCP is unavailable, stop and report that. Do not fall back to Shell for build, test, launch, boot, or shutdown. The only Shell exceptions are bundled scripts under `plugins/ios-dev/skills/*/scripts/` when the matching skill is loaded and instructs that script — in particular `resolve-derived-data-path.sh` from `build-ios-apps` and `simulator-hygiene.sh` from `ios-simulator-browser`.
