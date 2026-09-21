@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/ios-dev"
+ROOT="$MONOREPO_ROOT/dev-ios"
 PLUGIN_REPO="$(CDPATH= cd -- "$ROOT/.." && pwd)"
 MONOREPO_ROOT="$PLUGIN_REPO"
 # shellcheck source=find-harness-checkout.sh
@@ -46,12 +46,14 @@ rm -rf "$other"
 
 grep -q 'bootstrap-xcodebuildmcp-config.sh' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
 grep -q 'bootstrap-xcodebuildmcp-config.sh' "$ROOT/skills/build-ios-apps/SKILL.md"
-grep -q 'bootstrap manually' "$ROOT/skills/build-ios-apps/SKILL.md"
+grep -q 'If MCP still exits' "$ROOT/skills/build-ios-apps/SKILL.md"
 grep -q 'patch-xcodebuildmcp-prepared-test-derived-data.sh' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
-grep -q 'xcodebuildmcp@2.7.0' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
+grep -q 'xcodebuildmcp-pinned-version' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
+PIN_VERSION="$(tr -d '[:space:]' <"$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-pinned-version")"
+grep -q "xcodebuildmcp@\${XBMCP_PIN_VERSION}" "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
 grep -q 'xcodebuildmcp-with-xcode-derived-data' "$ROOT/mcp.json"
-grep -q 'XCODEBUILDMCP_SEARCH_ROOT' "$ROOT/mcp.json"
-grep -q '\${workspaceFolder}' "$ROOT/mcp.json"
+! grep -q 'XCODEBUILDMCP_SEARCH_ROOT' "$ROOT/mcp.json"
+! grep -q '\${workspaceFolder}' "$ROOT/mcp.json"
 ! grep -q '"cwd": "\${CURSOR_PLUGIN_ROOT}"' "$ROOT/mcp.json"
 ! grep -q '@latest' "$ROOT/mcp.json"
 

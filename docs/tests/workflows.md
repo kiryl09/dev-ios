@@ -9,7 +9,7 @@ Cross-family order of operations. Per-family detail: sibling files in this direc
 ## Pre-merge (MCP + hooks)
 
 1. All gates.
-2. [Sync + reload](../../README.md#ios-dev).
+2. [Sync + reload](../../README.md#dev-ios).
 3. [mcp-launcher.md](mcp-launcher.md).
 4. [sample-app.md](sample-app.md) — `build_sim`, `test_sim`.
 5. [agent-hooks.md](agent-hooks.md) — if `hooks.json` or bypass logic changed.

@@ -1,6 +1,6 @@
 # Testing the plugin
 
-Maintainer verification lives under `tests/` at the monorepo root. Shipped vs harness boundaries: [README](../README.md#quick-boundaries). Sync before Cursor-side checks: [README](../README.md#ios-dev).
+Maintainer verification lives under `tests/` at the monorepo root. Shipped vs harness boundaries: [README](../README.md#quick-boundaries). Sync before Cursor-side checks: [README](../README.md#dev-ios).
 
 Per-family procedures live in **`docs/tests/`** (one file per test family; do not duplicate them here).
 

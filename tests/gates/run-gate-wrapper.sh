@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-PLUGIN_REPO="$MONOREPO_ROOT/ios-dev"
+PLUGIN_REPO="$MONOREPO_ROOT/dev-ios"
 # shellcheck source=find-harness-checkout.sh
 source "$(dirname "$0")/find-harness-checkout.sh"
 HARNESS="$(find_harness_checkout "$MONOREPO_ROOT")"
@@ -32,7 +32,7 @@ else
 fi
 
 [[ -n "$HARNESS" ]]
-out="$(cd "$MONOREPO_ROOT" && "$WRAPPER" --dry-run)"
+out="$(cd "$MONOREPO_ROOT" && WORKSPACE_FOLDER_PATHS="$HARNESS" "$WRAPPER" --dry-run)"
 echo "$out" | grep -Fq "XCODEBUILDMCP_CWD=$HARNESS"
 expected="$(cd "$HARNESS" && "$RESOLVE")"
 echo "$out" | grep -Fq "derivedDataPath=$expected"
@@ -40,7 +40,7 @@ echo "$out" | grep -Fq "derivedDataPath=$expected"
 created="$(mktemp -d)"
 created="$(cd "$created" && pwd -P)"
 proj="$(gate_temp_xcodeproj "$created")"
-(cd "$created" && "$WRAPPER" --dry-run >/dev/null)
+(cd "$created" && WORKSPACE_FOLDER_PATHS="$created" "$WRAPPER" --dry-run >/dev/null)
 test -f "$created/.xcodebuildmcp/config.yaml"
 grep -q 'projectPath:' "$created/.xcodebuildmcp/config.yaml"
 rm -rf "$created"
@@ -60,7 +60,7 @@ rm -rf "$nested"
 probe="$(mktemp -d "$PLUGIN_REPO/.gate-probe.XXXXXX")"
 probe_proj="$(gate_temp_xcodeproj "$probe")"
 if "$BOOTSTRAP" --xcodeproj "$probe_proj" >/dev/null 2>&1; then
-  echo "FAIL: bootstrap must refuse ios-dev plugin checkout" >&2
+  echo "FAIL: bootstrap must refuse dev-ios plugin checkout" >&2
   rm -rf "$probe"
   exit 1
 fi
@@ -70,7 +70,7 @@ ready="$(mktemp -d)"
 ready="$(cd "$ready" && pwd -P)"
 ready_proj="$(gate_temp_xcodeproj "$ready")"
 "$BOOTSTRAP" --xcodeproj "$ready_proj" >/dev/null
-out="$(cd "$ready" && "$WRAPPER" --dry-run)"
+out="$(cd "$ready" && WORKSPACE_FOLDER_PATHS="$ready" "$WRAPPER" --dry-run)"
 echo "$out" | grep -Fq "XCODEBUILDMCP_CWD=$ready"
 expected="$(cd "$ready" && "$RESOLVE")"
 echo "$out" | grep -Fq "derivedDataPath=$expected"
@@ -78,7 +78,7 @@ echo "$out" | grep -Fq "$expected"
 rm -rf "$ready"
 
 [[ -n "$HARNESS" ]]
-out="$(cd "$HARNESS" && "$WRAPPER" --dry-run)"
+out="$(cd "$HARNESS" && WORKSPACE_FOLDER_PATHS="$HARNESS" "$WRAPPER" --dry-run)"
 echo "$out" | grep -Fq "XCODEBUILDMCP_CWD=$HARNESS"
 expected="$(cd "$HARNESS" && "$RESOLVE")"
 echo "$out" | grep -Fq "derivedDataPath=$expected"

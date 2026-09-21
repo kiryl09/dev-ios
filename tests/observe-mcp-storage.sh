@@ -6,7 +6,7 @@ usage() {
 Usage: observe-mcp-storage.sh <before|after|check> [state_file]
 
 Snapshots MCP forbidden trees and df Avail on $HOME volume.
-State file defaults to /tmp/ios-dev-observe.state.
+State file defaults to /tmp/dev-ios-observe.state.
 
   before   Record baseline (exit 0)
   after    Compare to baseline; exit 1 on new MCP copies or bad df delta
@@ -15,7 +15,7 @@ EOF
 }
 
 mode="${1:-}"
-state_file="${2:-/tmp/ios-dev-observe.state}"
+state_file="${2:-/tmp/dev-ios-observe.state}"
 home_volume="$(df -k "$HOME" | awk 'NR==2 {print $4}')"
 mcp_root="${HOME}/Library/Developer/XcodeBuildMCP"
 

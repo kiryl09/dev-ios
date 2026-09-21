@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/ios-dev"
+ROOT="$MONOREPO_ROOT/dev-ios"
 MONOREPO_ROOT="$(CDPATH= cd -- "$ROOT/.." && pwd)"
 # shellcheck source=find-harness-checkout.sh
 source "$(dirname "$0")/find-harness-checkout.sh"
@@ -27,9 +27,11 @@ assert "sessionDefaultsProfiles:" in text
 print("yaml_ok")
 PY
 
-chmod +x "$ROOT/tests/observe-mcp-storage.sh"
-"$ROOT/tests/observe-mcp-storage.sh" check >/dev/null
-"$ROOT/tests/observe-mcp-storage.sh" before /tmp/gate-miniap-observe.state >/dev/null
-"$ROOT/tests/observe-mcp-storage.sh" after /tmp/gate-miniap-observe.state >/dev/null
+TESTS_ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+OBSERVE="$TESTS_ROOT/observe-mcp-storage.sh"
+chmod +x "$OBSERVE"
+"$OBSERVE" check >/dev/null
+"$OBSERVE" before /tmp/gate-miniap-observe.state >/dev/null
+"$OBSERVE" after /tmp/gate-miniap-observe.state >/dev/null
 
 echo "gate-miniap PASS"

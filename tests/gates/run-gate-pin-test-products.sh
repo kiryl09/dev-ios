@@ -2,15 +2,16 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/ios-dev"
+ROOT="$MONOREPO_ROOT/dev-ios"
 SCRIPT_DIR="$ROOT/skills/build-ios-apps/scripts"
-PIN="/tmp/ios-dev-gate-pinned.xctestproducts"
+PIN="/tmp/dev-ios-gate-pinned.xctestproducts"
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 cd "$tmpdir"
 npm init -y >/dev/null 2>&1
-npm install xcodebuildmcp@2.7.0 --silent >/dev/null 2>&1
+PIN_VERSION="$(tr -d '[:space:]' <"$SCRIPT_DIR/xcodebuildmcp-pinned-version")"
+npm install "xcodebuildmcp@${PIN_VERSION}" --silent >/dev/null 2>&1
 
 "$SCRIPT_DIR/patch-xcodebuildmcp-pinned-test-products.sh" "$tmpdir/node_modules/xcodebuildmcp"
 export XCODEBUILDMCP_PINNED_TEST_PRODUCTS_PATH="$PIN"

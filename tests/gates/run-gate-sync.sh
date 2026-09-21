@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/ios-dev"
+ROOT="$MONOREPO_ROOT/dev-ios"
 RESOLVE="$ROOT/skills/build-ios-apps/scripts/resolve-derived-data-path.sh"
 FIXTURE="$(mktemp -d)"
 trap 'rm -rf "$FIXTURE"' EXIT

@@ -2,7 +2,7 @@
 
 Script: `tests/verify-xcodebuildmcp-launcher.sh`
 
-Confirms Cursor is running XcodeBuildMCP through the plugin wrapper (not stock `npx`). Requires the MCP server to be running in Cursor after [sync + reload](../../README.md#ios-dev).
+Confirms Cursor is running XcodeBuildMCP through the plugin wrapper (not stock `npx`). Requires the MCP server to be running in Cursor after [sync + reload](../../README.md#dev-ios).
 
 ## Run
 
@@ -21,8 +21,8 @@ Expect `verify-xcodebuildmcp-launcher PASS`.
 
 | Symptom | Fix |
 | --- | --- |
-| Old npx process | Stop XcodeBuildMCP in Cursor MCP settings, [sync + reload](../../README.md#ios-dev), restart server |
-| Missing pinned env | Wrapper not used — check `ios-dev/mcp.json` points at `xcodebuildmcp-with-xcode-derived-data.sh` |
-| No MCP process | Open a workspace with ios-dev; enable XcodeBuildMCP |
+| Old npx process | Stop XcodeBuildMCP in Cursor MCP settings, [sync + reload](../../README.md#dev-ios), restart server |
+| Missing pinned env | Wrapper not used — check `dev-ios/mcp.json` points at `xcodebuildmcp-with-xcode-derived-data.sh` |
+| No MCP process | Open a workspace with dev-ios; enable XcodeBuildMCP |
 
 Pair with [sample-app.md](sample-app.md) after `mcp.json` or launcher script changes.

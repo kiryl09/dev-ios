@@ -2,16 +2,17 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/ios-dev"
+ROOT="$MONOREPO_ROOT/dev-ios"
 SCRIPT_DIR="$ROOT/skills/build-ios-apps/scripts"
-DD="/tmp/ios-dev-gate-pinned-derived-data"
-PRODUCTS="/tmp/ios-dev-gate-pinned-products.xctestproducts"
+DD="/tmp/dev-ios-gate-pinned-derived-data"
+PRODUCTS="/tmp/dev-ios-gate-pinned-products.xctestproducts"
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 cd "$tmpdir"
 npm init -y >/dev/null 2>&1
-npm install xcodebuildmcp@2.7.0 --silent >/dev/null 2>&1
+PIN_VERSION="$(tr -d '[:space:]' <"$SCRIPT_DIR/xcodebuildmcp-pinned-version")"
+npm install "xcodebuildmcp@${PIN_VERSION}" --silent >/dev/null 2>&1
 
 "$SCRIPT_DIR/patch-xcodebuildmcp-prepared-test-derived-data.sh" "$tmpdir/node_modules/xcodebuildmcp"
 export XCODEBUILDMCP_DERIVED_DATA_PATH="$DD"
@@ -22,7 +23,7 @@ node --input-type=module <<'NODE'
 import { configureRuntimeWorkspaceKey } from "./node_modules/xcodebuildmcp/build/utils/runtime-instance.js";
 import { createTestExecutor } from "./node_modules/xcodebuildmcp/build/utils/test-common.js";
 
-configureRuntimeWorkspaceKey("ios-dev-gate-pin-derived-data");
+configureRuntimeWorkspaceKey("dev-ios-gate-pin-derived-data");
 
 const captured = [];
 const fakeExecutor = async (command) => {

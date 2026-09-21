@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/ios-dev"
+ROOT="$MONOREPO_ROOT/dev-ios"
 MONOREPO_ROOT="$(CDPATH= cd -- "$ROOT/.." && pwd)"
 # shellcheck source=find-harness-checkout.sh
 source "$(dirname "$0")/find-harness-checkout.sh"
@@ -64,6 +64,22 @@ payload = {
 out = subprocess.check_output(["python3", policy, "deny"], input=json.dumps(payload).encode())
 assert json.loads(out)["permission"] == "allow", out
 PY
+
+WRAPPER="$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
+chmod +x "$WRAPPER"
+empty_ws="$(mktemp -d)"
+if WORKSPACE_FOLDER_PATHS="$empty_ws" "$WRAPPER" --dry-run >/dev/null 2>&1; then
+  echo "FAIL: wrapper must not start without a configured host under workspace" >&2
+  rm -rf "$empty_ws"
+  exit 1
+fi
+[[ "$(deny "{\"tool_name\":\"build_sim\",\"tool_input\":{},\"workspace_roots\":[\"$empty_ws\"]}")" == "deny" ]]
+rm -rf "$empty_ws"
+other="$(mktemp -d)"
+other_proj="$other/$(basename "$other").xcodeproj"
+mkdir -p "$other_proj"
+[[ "$(deny "{\"tool_name\":\"build_sim\",\"tool_input\":{},\"workspace_roots\":[\"$HARNESS\"],\"session_defaults\":{\"projectPath\":\"$other_proj\"}}")" == "deny" ]]
+rm -rf "$other"
 
 allow "{\"tool_name\":\"build_sim\",\"tool_input\":{\"buildForTesting\":true},\"session_defaults\":{\"extraArgs\":[\"-testProductsPath\",\"$DD/Scheme.xctestproducts\"]}}"
 

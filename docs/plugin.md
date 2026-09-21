@@ -1,6 +1,6 @@
-# ios-dev plugin
+# dev-ios plugin
 
-Product code for iOS work in Cursor: skills, rules, hooks, and MCP wiring. Source: `ios-dev/`.
+Product code for iOS work in Cursor: skills, rules, hooks, and MCP wiring. Source: `dev-ios/`.
 
 Install copy, sync, and what may ship in the plugin: [README](../README.md).
 
@@ -21,7 +21,7 @@ Prefer **rules and skills** over growing hooks and shell scripts. Hooks and scri
 
 | File | Purpose |
 | --- | --- |
-| `ios-dev-scope.mdc` | When ios-dev is active (iOS targets, `.cursor/ios-dev`, or `.xcodebuildmcp/config.yaml`) |
+| `dev-ios-scope.mdc` | When dev-ios is active (iOS targets, `.cursor/dev-ios`, or `.xcodebuildmcp/config.yaml`) |
 | `ios-workflow.mdc` | MCP routing, build/test obligations, skill scripts (active only in iOS scope) |
 | `xcode-mcp-only.mdc` | Blocks Shell bypass of Simulator build/test/launch (active only in iOS scope) |
 
@@ -42,7 +42,7 @@ Router: **`build-ios-apps`** — read first for MCP and specialist routing.
 | `swiftui-liquid-glass` | Liquid Glass (OS 26+) |
 | `swiftui-performance-audit` | Rendering/scroll/update performance from code |
 
-Cross-platform SwiftUI skills apply when Xcode is open; iOS-only skills and XcodeBuildMCP apply only when `ios-dev-scope` is active.
+Cross-platform SwiftUI skills apply when Xcode is open; iOS-only skills and XcodeBuildMCP apply only when `dev-ios-scope` is active.
 
 How to change skills: [skills.md](skills.md).
 
@@ -52,13 +52,13 @@ Registered in `hooks/hooks.json`. Behavior and how to add hooks: [hooks.md](hook
 
 | Script | Events | Purpose |
 | --- | --- | --- |
-| `deny-ios-dev-out-of-scope.sh` | Shell, MCP, read, preToolUse | Blocks XcodeBuildMCP and iOS-only skills when workspace is not iOS-scoped |
+| `deny-dev-ios-out-of-scope.sh` | Shell, MCP, read, preToolUse | Blocks XcodeBuildMCP and iOS-only skills when workspace is not iOS-scoped |
 | `deny-xcode-bypass.sh` | Shell, read (soft), preToolUse | Blocks `xcodebuild` / `simctl` / cache writes via Shell or file tools |
 | `deny-mcp-derived-data-copy.sh` | beforeMCP (build/test/clean) | Denies source-mode `test_sim` and foreign DerivedData paths |
 | `witness-mcp-derived-data-copy.sh` | before/after MCP (build/test) | Witnesses MCP build/test against host yaml policy |
 | `agent-session-lifecycle.sh` | Shell/MCP before/after, stop, sessionEnd | Records shell PIDs per chat; stops agent-started shells on stop/session end; MCP build diagnostics |
 
-Shared libraries: `hooks/lib/ios_scope.py`, `ios_dev_gate.py`, `mcp_dd_policy.py`, `project_xcodebuild.py`.
+Shared libraries: `hooks/lib/ios_scope.py`, `dev_ios_gate.py`, `mcp_dd_policy.py`, `project_xcodebuild.py`.
 
 ## MCP
 
@@ -73,7 +73,8 @@ All shell entrypoints that need “which app is this workspace?” source one li
 
 | Step | Rule |
 | --- | --- |
-| Search anchor | `XCODEBUILDMCP_SEARCH_ROOT` (from plugin `mcp.json` → `${workspaceFolder}`), else `WORKSPACE_FOLDER_PATHS`, else process `cwd`. |
+| Search anchor | Opened workspace folder: `WORKSPACE_FOLDER_PATHS` (Cursor MCP spawn), else optional `XCODEBUILDMCP_SEARCH_ROOT`, else process `cwd`. Host `.xcodeproj` is chosen only under that folder. Prefer hosts that already have `.xcodebuildmcp/config.yaml`; bootstrap can create yaml when none exists. |
+| Build/test guard | Hooks resolve the same host via `mcp_host_resolver.py` + `xcodebuildmcp-host-dir.sh`; deny when there is no configured host or `session_defaults.projectPath` ≠ that host. |
 | Project root | Git root from search anchor; if no `.git`, search anchor directory. |
 | Search | Every `*.xcodeproj` under project root (recursive). |
 | Skip | `Pods/`, `SourcePackages/`, `.git/`. |

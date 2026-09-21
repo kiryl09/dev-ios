@@ -7,9 +7,9 @@ Snapshots forbidden trees under `~/Library/Developer/XcodeBuildMCP` and free spa
 ## Usage
 
 ```bash
-tests/observe-mcp-storage.sh before /tmp/ios-dev-observe.state
+tests/observe-mcp-storage.sh before /tmp/dev-ios-observe.state
 # … MCP build/test session …
-tests/observe-mcp-storage.sh after /tmp/ios-dev-observe.state
+tests/observe-mcp-storage.sh after /tmp/dev-ios-observe.state
 tests/observe-mcp-storage.sh check
 ```
 

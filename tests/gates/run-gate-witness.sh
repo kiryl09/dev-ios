@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/ios-dev"
+ROOT="$MONOREPO_ROOT/dev-ios"
 POLICY="$ROOT/hooks/lib/mcp_dd_policy.py"
 BASE="${HOME}/Library/Developer/XcodeBuildMCP/workspaces/gate-witness-test"
 NEW_DIR="$BASE/DerivedData"
