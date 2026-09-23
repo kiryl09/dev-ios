@@ -2,11 +2,11 @@
 
 Harness directory: `tests/xcode-sample_project/` (`PluginProbe.xcodeproj`, schemes `PluginProbe` / `PluginProbeTests`, `.xcodebuildmcp/config.yaml`).
 
-Integration tests for real Simulator build, run, and unit test via XcodeBuildMCP. **Do not** reference PluginProbe in shipped `dev-ios/` skills or rules.
+Integration tests for real Simulator build, run, and unit test via XcodeBuildMCP. **Do not** reference PluginProbe in shipped `plugin/` skills or rules.
 
 ## Prerequisites
 
-1. [Sync + reload](../../README.md#dev-ios).
+1. [Stage skills, hooks, scripts, and MCP into the project `.cursor/`, then wait for a manual Reload Window](../../README.md#dev-ios). Do not sync `~/.cursor/plugins/local/` unless the user asks.
 2. Open this monorepo or `tests/xcode-sample_project` in Cursor (dev-ios scope active; shallowest `.xcodeproj` under git root is the harness).
 3. [MCP launcher](mcp-launcher.md) PASS.
 
@@ -16,7 +16,7 @@ After clone or Xcode upgrade, from the harness:
 
 ```bash
 cd tests/xcode-sample_project
-../../dev-ios/skills/build-ios-apps/scripts/resolve-derived-data-path.sh \
+../../plugin/skills/build-ios-apps/scripts/resolve-derived-data-path.sh \
   --sync-config --repo-root "$(git -C ../.. rev-parse --show-toplevel)"
 ```
 
@@ -26,17 +26,13 @@ Offline harness shape: `tests/gates/run-gate-miniap.sh` ([gates.md](gates.md)).
 
 ## MCP smoke
 
-Use XcodeBuildMCP only (not Shell `xcodebuild`).
+Use XcodeBuildMCP only (not Shell `xcodebuild`). Full bar: [verification-mcp.md](verification-mcp.md).
 
-1. Per [session-defaults.md](../../dev-ios/skills/build-ios-apps/references/session-defaults.md): prep profile `app`, then `build_sim`.
-2. `build_run_sim`.
-3. Prep profile `tests`, then `build_sim` (`buildForTesting: true` only), then `test_sim` with `testProductsPath` from yaml (hooks deny source-mode test).
+1. Per [session-defaults.md](../../plugin/skills/build-ios-apps/references/session-defaults.md): `build_sim` with full profile `app` fields from yaml (no `session_*` tools).
+2. `build_run_sim` with the same app profile args.
+3. `build_sim` (`buildForTesting: true` with full profile `tests` fields from yaml), then `test_sim` with `testProductsPath` and `simulatorId` only (not source-mode; [session-defaults.md](../../plugin/skills/build-ios-apps/references/session-defaults.md)).
 
-Optional: `snapshot_ui` after launch ([ios-debugger-agent](../../dev-ios/skills/ios-debugger-agent/SKILL.md)).
-
-## xcode-tools (optional)
-
-Open the harness in Xcode, then `DocumentationSearch`, `XcodeListNavigatorIssues`, `RenderPreview` on `ContentView.swift` — validates `mcp.json` `xcrun mcpbridge`.
+Optional: `snapshot_ui` after launch ([ios-debugger-agent](../../plugin/skills/ios-debugger-agent/SKILL.md)).
 
 ## Disk side effects
 

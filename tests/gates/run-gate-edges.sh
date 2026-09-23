@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/dev-ios"
+ROOT="$MONOREPO_ROOT/plugin"
 PLUGIN_REPO="$(CDPATH= cd -- "$ROOT/.." && pwd)"
 MONOREPO_ROOT="$PLUGIN_REPO"
 # shellcheck source=find-harness-checkout.sh
@@ -14,22 +14,17 @@ BOOTSTRAP="$ROOT/skills/build-ios-apps/scripts/bootstrap-xcodebuildmcp-config.sh
 ! grep -q 'kill-xcodebuild' "$ROOT/skills/ios-simulator-browser/scripts/simulator-hygiene.sh"
 ! grep -q 'kill_project_xcodebuild' "$ROOT/hooks/lib/project_xcodebuild.py"
 ! grep -q 'probe_project_root' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
-grep -q 'Do not call MCP clean' "$ROOT/hooks/lib/mcp_dd_policy.py"
-! grep -q 'deny_parallel_run' "$ROOT/hooks/lib/mcp_dd_policy.py"
+grep -q 'Do not call MCP `clean`' "$ROOT/skills/build-ios-apps/references/checkout-environment.md"
 grep -q '## One at a time' "$ROOT/skills/ios-debugger-agent/SKILL.md"
+! grep -q 'failClosed' "$ROOT/hooks/hooks.json"
+! grep -q 'deny-' "$ROOT/hooks/hooks.json"
+[[ ! -f "$ROOT/hooks/deny-xcode-bypass.sh" ]]
+[[ ! -f "$ROOT/hooks/deny-mcp-derived-data-copy.sh" ]]
+[[ ! -f "$ROOT/hooks/deny-dev-ios-out-of-scope.sh" ]]
+[[ ! -f "$ROOT/hooks/witness-mcp-derived-data-copy.sh" ]]
+grep -q 'xcodebuild' "$ROOT/rules/xcode-mcp-only.mdc"
 
 [[ -n "$HARNESS" ]]
-
-bypass_perm() {
-  python3 -c 'import json,sys; print(json.load(sys.stdin)["permission"])'
-}
-hook_payload() {
-  python3 -c "import json,sys; print(json.dumps({'hook_event_name':'beforeShellExecution','tool_name':'Shell','command':sys.argv[1],'workspace_roots':[sys.argv[2]]}))" "$1" "$HARNESS"
-}
-[[ "$(hook_payload 'kill 12345' | "$ROOT/hooks/deny-xcode-bypass.sh" | bypass_perm)" == "deny" ]]
-[[ "$(hook_payload 'simulator-hygiene.sh kill-xcodebuild' | "$ROOT/hooks/deny-xcode-bypass.sh" | bypass_perm)" == "deny" ]]
-[[ "$(hook_payload "rm -rf $HOME/Library/Developer/Xcode/DerivedData/SomeProduct-x/SourcePackages" | "$ROOT/hooks/deny-xcode-bypass.sh" | bypass_perm)" == "deny" ]]
-[[ "$(hook_payload 'npx --yes serve-sim@latest --kill ABC' | "$ROOT/hooks/deny-xcode-bypass.sh" | bypass_perm)" == "allow" ]]
 
 dd1="$(cd "$HARNESS" && "$ROOT/skills/build-ios-apps/scripts/resolve-derived-data-path.sh")"
 dd2="$(cd "$HARNESS" && "$ROOT/skills/build-ios-apps/scripts/resolve-derived-data-path.sh" --sync-config)"
@@ -44,11 +39,14 @@ after="$(cat "$other/.xcodebuildmcp/config.yaml")"
 [[ "$before" == "$after" ]]
 rm -rf "$other"
 
-grep -q 'bootstrap-xcodebuildmcp-config.sh' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
 grep -q 'bootstrap-xcodebuildmcp-config.sh' "$ROOT/skills/build-ios-apps/SKILL.md"
-grep -q 'If MCP still exits' "$ROOT/skills/build-ios-apps/SKILL.md"
-grep -q 'patch-xcodebuildmcp-prepared-test-derived-data.sh' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
+grep -q 'XCODEBUILDMCP_DISABLE_SESSION_DEFAULTS' "$ROOT/mcp.json"
+grep -q 'Do \*\*not\*\* call `session_clear_defaults`' "$ROOT/skills/build-ios-apps/references/session-defaults.md"
+grep -q 'buildForTesting: true' "$ROOT/skills/build-ios-apps/references/session-defaults.md"
+grep -q 'XCODEBUILDMCP_DISABLE_XCODE_AUTO_SYNC' "$ROOT/mcp.json"
+! grep -q 'patch-xcodebuildmcp-prepared-test-derived-data.sh' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
 grep -q 'xcodebuildmcp-pinned-version' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
+grep -q 'resolve-derived-data-path.sh.*--sync-config' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
 PIN_VERSION="$(tr -d '[:space:]' <"$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-pinned-version")"
 grep -q "xcodebuildmcp@\${XBMCP_PIN_VERSION}" "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
 grep -q 'xcodebuildmcp-with-xcode-derived-data' "$ROOT/mcp.json"

@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "bash",
+      "args": [
+        "${CURSOR_PLUGIN_ROOT}/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
+      ],
+      "env": {
+        "XCODEBUILDMCP_ENABLED_WORKFLOWS": "simulator,ui-automation,debugging,logging",
+        "XCODEBUILDMCP_DISABLE_XCODE_AUTO_SYNC": "true",
+        "XCODEBUILDMCP_DISABLE_SESSION_DEFAULTS": "true",
+        "NODE_OPTIONS": ""
+      }
+    }
+  }
+}

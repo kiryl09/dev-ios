@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/dev-ios"
+ROOT="$MONOREPO_ROOT/plugin"
 MONOREPO_ROOT="$(CDPATH= cd -- "$ROOT/.." && pwd)"
 # shellcheck source=find-harness-checkout.sh
 source "$(dirname "$0")/find-harness-checkout.sh"

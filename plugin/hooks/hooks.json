@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh"
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh"
+      }
+    ],
+    "beforeMCPExecution": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh",
+        "matcher": "build_sim|test_sim|build_run_sim|clean"
+      }
+    ],
+    "afterMCPExecution": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh",
+        "matcher": "build_sim|test_sim|build_run_sim|clean"
+      }
+    ],
+    "stop": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh",
+        "timeout": 30
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "hooks/agent-session-lifecycle.sh",
+        "timeout": 60
+      }
+    ]
+  }
+}

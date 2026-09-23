@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MONOREPO_ROOT="$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
-ROOT="$MONOREPO_ROOT/dev-ios"
+ROOT="$MONOREPO_ROOT/plugin"
 RESOLVE="$ROOT/skills/build-ios-apps/scripts/resolve-derived-data-path.sh"
 FIXTURE="$(mktemp -d)"
 trap 'rm -rf "$FIXTURE"' EXIT
@@ -43,6 +43,8 @@ assert dd in text
 assert other not in text
 assert "-resultBundlePath" in text
 assert f"{base}Tests.xcresult" in text
+assert "-parallel-testing-enabled" in text
+assert "-maximum-parallel-testing-workers" in text
 print("sync_ok")
 PY
 

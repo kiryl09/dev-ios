@@ -1,0 +1,17 @@
+{
+  "name": "kiryl09-dev-ios",
+  "owner": {
+    "name": "kiryl09"
+  },
+  "metadata": {
+    "description": "Cursor plugin for iOS Simulator workflows: skills, rules, hooks, and XcodeBuildMCP."
+  },
+  "plugins": [
+    {
+      "name": "dev-ios",
+      "source": "plugin",
+      "description": "Skills, rules, and MCP for building, running, and testing iOS apps in Cursor. Includes DerivedData scripts, ios-simulator-browser hygiene, and host test-specific rules guidance.",
+      "keywords": ["ios", "swift", "xcode", "simulator", "swiftui"]
+    }
+  ]
+}

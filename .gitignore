@@ -1,4 +1,6 @@
+.cursor/
 __pycache__/
 .gate-probe.*
 .DS_Store
 **/.xcodebuildmcp/derived-data.local
+**/xcodebuildmcp-npm-cache/

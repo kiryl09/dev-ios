@@ -1,0 +1,29 @@
+---
+description: When dev-ios plugin applies (iOS workspaces only)
+alwaysApply: true
+---
+
+# dev-ios scope
+
+**iOS-only (Simulator / XcodeBuildMCP):** `ios-workflow.mdc`, `xcode-mcp-only.mdc` (Simulator/Shell bypass bar), **XcodeBuildMCP**, and skills `build-ios-apps`, `ios-*`.
+
+**Cross-platform SwiftUI skills:** `swiftui-ui-patterns`, `swiftui-view-refactor`, `swiftui-performance-audit`, `swiftui-liquid-glass`.
+
+## Active when any workspace root has one of:
+
+- `.xcodebuildmcp/config.yaml` (XcodeBuildMCP host setup)
+- `.cursor/dev-ios` (explicit opt-in)
+- An Xcode `project.pbxproj` with iOS targets (`iphoneos` / `iphonesimulator` / `TARGETED_DEVICE_FAMILY`)
+
+## Inactive otherwise
+
+Examples: macOS-only `.xcodeproj`, Swift packages with no iOS platform, Node/Python repos, or Xcode projects with only `SDKROOT = macosx`.
+
+When **inactive**:
+
+- Ignore `ios-workflow.mdc` and `xcode-mcp-only.mdc`; do not use XcodeBuildMCP or require `build_sim`.
+- Do not load or run **iOS-only** skills and scripts listed above. Use Shell `xcodebuild` for macOS hosts.
+- Shell `xcodebuild`, `xcrun`, and normal Xcode/CLI builds are allowed.
+- Do not tell the user that ios-workflow forbids Shell; that restriction applies only when this scope is **active**.
+
+Opt out on a mixed repo: add `.cursor/dev-ios-off` at the workspace root.
