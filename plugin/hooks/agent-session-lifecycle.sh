@@ -39,10 +39,7 @@ SKILL_SCRIPT_RE = re.compile(
     r"(?:^|[\s\"'])(?:plugins/)?dev-ios/skills/[^/\s\"']+/scripts/",
     re.IGNORECASE,
 )
-LONG_RUNNING_RE = re.compile(
-    r"serve-sim|swiftui-preview-browser\.py|npx\s+--yes\s+serve-sim",
-    re.IGNORECASE,
-)
+LONG_RUNNING_RE = re.compile(r"(?!)")
 DIAGNOSTIC_RE = re.compile(
     r"dump_zsh_state.*ps\s+-axo|ps\s+-axo.*RuntimeRoot|ps\s+-axo.*SpringBoard",
     re.IGNORECASE,
@@ -50,7 +47,7 @@ DIAGNOSTIC_RE = re.compile(
 
 MCP_XCODEBUILD_SERVER = "XcodeBuildMCP"
 MCP_XCODEBUILD_TOOLS = frozenset(
-    {"build_sim", "test_sim", "build_run_sim", "clean"}
+    {"build_sim", "test_sim", "clean"}
 )
 
 

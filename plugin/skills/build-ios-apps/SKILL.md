@@ -1,9 +1,13 @@
 ---
 name: build-ios-apps
-description: Build, profile, debug, and refine iOS apps with SwiftUI, App Intents, and Xcode workflows. Use when building or debugging on Simulator, reviewing SwiftUI UI, profiling performance, investigating leaks, or capturing visual proof. Load only when dev-ios-scope is active (iOS workspace).
+description: Build, profile, debug, and refine iOS apps with SwiftUI, App Intents, and Xcode workflows. Use when building or debugging on Simulator, profiling performance, or investigating leaks. Load only when dev-ios-scope is active (iOS workspace).
 ---
 
 # Build iOS Apps
+
+## Simulator UI forbidden
+
+Never open Simulator.app and never launch an app in the Simulator. Allowed XcodeBuildMCP tools are `build_sim` and `test_sim` only. `test_sim` runs unit tests with mocks. Do not call `boot_sim`, `open_sim`, `build_run_sim`, `install_app_sim`, `launch_app_sim`, `stop_app_sim`, `screenshot`, `snapshot_ui`, `tap`, `touch`, `long_press`, `swipe`, `drag`, `gesture`, `button`, `key_press`, `key_sequence`, `type_text`, `wait_for_ui`, `record_sim_video`, or `debug_attach_sim`. Do not run `serve-sim`, `swiftui-preview-browser.py`, `open -a Simulator`, `simctl boot`, or `simctl launch`. If a task needs the Simulator window, stop and say this plugin does not launch Simulator UI.
 
 Cursor router for iOS/watchOS work. Read this skill first, then read every specialist skill it names for the request. MCP roles must not overlap; routing detail is in `plugins/dev-ios/rules/ios-workflow.mdc`.
 
@@ -13,9 +17,7 @@ Cursor router for iOS/watchOS work. Read this skill first, then read every speci
 
 | Task | Skill |
 | --- | --- |
-| Build, run, test, tap, logs, simulator UI, debug | `ios-debugger-agent` and `ios-simulator-browser` (status and shutdown) |
-| Live simulator mirror, simulator status/shutdown, or SPM preview hot reload | `ios-simulator-browser` |
-| SwiftUI visual check in this `.xcodeproj` | `ios-debugger-agent` (`build_run_sim`, `snapshot_ui`) or `ios-simulator-browser` (browser mirror) |
+| Build, compile verify, unit tests, logs | `ios-debugger-agent` and `ios-simulator-browser` (status and shutdown) |
 | ETTrace CPU profiling | `ios-ettrace-performance` (pair `ios-debugger-agent`) |
 | Memgraph leak investigation | `ios-memgraph-leaks` (pair `ios-debugger-agent`) |
 | App Intents / Shortcuts / Siri | `ios-app-intents` |
@@ -28,9 +30,8 @@ Cursor router for iOS/watchOS work. Read this skill first, then read every speci
 
 | Need | Server | Tools / role |
 | --- | --- | --- |
-| Simulator list/boot/build/run/test, UI automation, screenshots, debug | `XcodeBuildMCP` | `build_run_sim`, `build_sim`, `test_sim`, `snapshot_ui`, `tap`, `debug_*`, and related tools with explicit args from host yaml ([session-defaults.md](references/session-defaults.md)). Call short names (`list_sims`), not `mcp__XcodeBuildMCP__…`. |
+| Simulator build and unit test | `XcodeBuildMCP` | `build_sim` (compile only; profile `app`), `test_sim` only. Do not call `build_run_sim` or UI tools. Explicit args from host yaml ([session-defaults.md](references/session-defaults.md)). Call short names (`list_sims`), not `mcp__XcodeBuildMCP__…`. |
 | File read/write/search, build logs, `.xcresult` | Cursor native tools | Read, Write, Grep, Glob on source and on paths under yaml `derivedDataPath` / MCP-returned log paths. |
-| `serve-sim` localhost mirror | Cursor Browser Tab or `cursor-ide-browser` | After `build_run_sim` and `serve-sim`. |
 
 Do not add Sweetpad, xcode-build-server, or Shell `xcodebuild` / `xcrun` / `simctl` as an agent path.
 
@@ -38,7 +39,7 @@ Do not add Sweetpad, xcode-build-server, or Shell `xcodebuild` / `xcrun` / `simc
 
 The open workspace is the app. Start at **How to build or test this app** in [references/session-defaults.md](references/session-defaults.md). Do not build the plugin repo and do not learn the MCP shape by retrying tools.
 
-**Before every** `build_sim`, `build_run_sim`, or `test_sim`, follow [references/session-defaults.md](references/session-defaults.md) and [references/checkout-environment.md](references/checkout-environment.md) (canonical; do not paraphrase elsewhere). Read this host’s yaml and pass the full profile in **tool_input** on every build call. Profile `app` → `build_run_sim` / `build_sim`; profile `tests` → `build_sim` (`buildForTesting: true` + full tests profile) then `test_sim` (path from [session-defaults.md](references/session-defaults.md) + simulator only). **One** `xcodebuild` and **one** booted simulator (configured UDID). Sequential `test_sim` only. Host docs do not override that.
+**Before every** `build_sim` or `test_sim`, follow [references/session-defaults.md](references/session-defaults.md) and [references/checkout-environment.md](references/checkout-environment.md) (canonical; do not paraphrase elsewhere). Read this host’s yaml and pass the full profile in **tool_input** on every build call. Profile `app` → `build_sim`; profile `tests` → `build_sim` (`buildForTesting: true` + full tests profile) then `test_sim` (path from [session-defaults.md](references/session-defaults.md) + simulator only). **One** `xcodebuild` and **one** booted simulator (configured UDID). Sequential `test_sim` only. Host docs do not override that.
 
 **Verification:** For the open app, a passing `build_sim` / `test_sim` with args from that app’s yaml is the result. Shell `xcodebuild` does not count.
 
@@ -79,5 +80,3 @@ Read `references/test-specific-rules.md` when setting up a new repo or when `tes
 ## After every code change
 
 Before reporting a task complete, run at least **`build_sim`** on the touched scheme(s) through XcodeBuildMCP (explicit yaml args in [references/session-defaults.md](references/session-defaults.md)). Same bar as **After every code change** in `plugins/dev-ios/rules/ios-workflow.mdc`: no “should compile”, no skipping the build because the user asked a different question next.
-
-Optional follow-ups (only when the task requires them): `test_sim` (after `build_sim` `buildForTesting` per above), `build_run_sim`, `snapshot_ui` or browser mirror for visual proof.

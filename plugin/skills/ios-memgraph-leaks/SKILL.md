@@ -5,38 +5,25 @@ description: Capture and inspect iOS leaks and memgraphs. Use when debugging lea
 
 # iOS Memgraph Leaks
 
-Use this skill to prove iOS leaks from a live simulator process or an existing `.memgraph`. Pair it with `ios-debugger-agent` for Simulator build, launch, and UI driving through XcodeBuildMCP. Do not invent a second build path. Bundled scripts under this skill may run when this skill is loaded. Prefer simulator UDID and bundle id from `list_sims` and `get_app_bundle_id` rather than ad-hoc `xcrun simctl` as the first choice.
+## Simulator UI forbidden
+
+Never open Simulator.app and never launch an app in the Simulator. Allowed XcodeBuildMCP tools are `build_sim` and `test_sim` only. `test_sim` runs unit tests with mocks. Do not call `boot_sim`, `open_sim`, `build_run_sim`, `install_app_sim`, `launch_app_sim`, `stop_app_sim`, `screenshot`, `snapshot_ui`, `tap`, `touch`, `long_press`, `swipe`, `drag`, `gesture`, `button`, `key_press`, `key_sequence`, `type_text`, `wait_for_ui`, `record_sim_video`, or `debug_attach_sim`. Do not run `serve-sim`, `swiftui-preview-browser.py`, `open -a Simulator`, `simctl boot`, or `simctl launch`. If a task needs the Simulator window, stop and say this plugin does not launch Simulator UI.
+
+Use this skill to prove iOS leaks from a live simulator process or an existing `.memgraph`. Do not launch the app and do not drive UI. Do not invent a second build path. Bundled scripts under this skill may run when this skill is loaded. Prefer simulator UDID and bundle id from `list_sims` and `get_app_bundle_id` rather than ad-hoc `xcrun simctl` as the first choice.
 
 ## Core Workflow
 
-1. Build, launch, and drive the exact flow that should release objects.
-2. Capture a memgraph from the running simulator process with `scripts/capture_sim_memgraph.sh`.
-3. Summarize leaks with `scripts/summarize_memgraph_leaks.py`.
-4. For each app-owned leaked type, inspect ownership with `leaks --traceTree=<address> <file.memgraph>` and grouped leak evidence.
-5. Make the smallest root-cause patch, then recapture the same flow on the same simulator when possible.
-6. Report proof: before/after leak counts, disappeared root types, remaining leaks, memgraph paths, and test/build results.
+1. Do not launch the app. Read an existing `.memgraph` only. If none exists, stop.
+2. Summarize leaks with `scripts/summarize_memgraph_leaks.py`.
+3. For each app-owned leaked type, inspect ownership with `leaks --traceTree=<address> <file.memgraph>` and grouped leak evidence.
+4. Make the smallest root-cause patch, then re-run `build_sim` / `test_sim` when verification is needed.
+5. Report proof: before/after leak counts, disappeared root types, remaining leaks, memgraph paths, and test/build results.
 
 Do not claim a leak fix from a smaller memgraph alone. A credible fix explains the ownership path that kept the object alive and shows that the same path or type disappears after the patch.
 
 ## Capture
 
-Prefer capturing from the simulator already used for the reproduction. Resolve the simulator UDID and app bundle identifier from XcodeBuildMCP (`list_sims`, session defaults, `get_app_bundle_id`), then capture the running app:
-
-```bash
-SKILL_DIR="plugins/dev-ios/skills/ios-memgraph-leaks"
-SIM="<simulator-udid>"
-BUNDLE_ID="<app.bundle.identifier>"
-MEMGRAPH_DIR="$(mktemp -d "${TMPDIR:-/tmp}/cursor-ios-memgraph.XXXXXX")"
-
-"$SKILL_DIR/scripts/capture_sim_memgraph.sh" \
-  --udid "$SIM" \
-  --bundle-id "$BUNDLE_ID" \
-  --out-dir "$MEMGRAPH_DIR"
-```
-
-Run all script paths from the repository root. Set `SKILL_DIR` to the absolute path of `plugins/dev-ios/skills/ios-memgraph-leaks` in this repository. Store captures in a run-specific temp or user-chosen folder, not under `SKILL_DIR`.
-
-If the process cannot be found, confirm the bundle identifier with `get_app_bundle_id` and re-run `capture_sim_memgraph.sh` with the same `--udid` and `--bundle-id`.
+Do not capture from a running simulator process via this plugin. Use an existing `.memgraph` file only.
 
 ## Summarize
 

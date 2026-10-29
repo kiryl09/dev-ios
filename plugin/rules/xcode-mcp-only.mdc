@@ -7,6 +7,10 @@ alwaysApply: true
 
 **Scope:** Binding only when `dev-ios-scope.mdc` marks this workspace active (iOS Simulator workflow). When inactive, ignore this entire rule — use Shell `xcodebuild` on macOS.
 
+## Simulator UI forbidden
+
+Never open Simulator.app and never launch an app in the Simulator. Allowed XcodeBuildMCP tools are `build_sim` and `test_sim` only. `test_sim` runs unit tests with mocks. Do not call `boot_sim`, `open_sim`, `build_run_sim`, `install_app_sim`, `launch_app_sim`, `stop_app_sim`, `screenshot`, `snapshot_ui`, `tap`, `touch`, `long_press`, `swipe`, `drag`, `gesture`, `button`, `key_press`, `key_sequence`, `type_text`, `wait_for_ui`, `record_sim_video`, or `debug_attach_sim`. Do not run `serve-sim`, `swiftui-preview-browser.py`, `open -a Simulator`, `simctl boot`, or `simctl launch`. If a task needs the Simulator window, stop and say this plugin does not launch Simulator UI.
+
 Build, test, launch, boot, and shutdown on **Simulator** go through **`XcodeBuildMCP` only**. Do not use the Shell tool (or any other non-MCP tool) for Simulator build/test/launch operations.
 
 Never run, chain, or wrap any of these in Shell, including after `pkill`, `kill`, `nohup`, or `sleep`:
@@ -15,7 +19,7 @@ Never run, chain, or wrap any of these in Shell, including after `pkill`, `kill`
 - `xcrun`, `simctl`, `xcode-select`
 - `instruments`, `xed`, `agvtool`, `ibtool`, `actool`
 
-**Reading logs and crashes is allowed.** Use Read, Grep, or Glob on runtime console logs, crash reports, and Diagnostics for the host app on Simulator or device, including paths under `~/Library/Logs/` (for example `CoreSimulator`, `DiagnosticReports`), `~/Library/Developer/CoreSimulator/Devices/…/data/Library/Logs/`, log paths under yaml `derivedDataPath` (`Logs/`, `.xcresult`), and log file paths returned by MCP (`build_run_sim`, `test_sim`). `debug_attach_sim` does not replace those for a crash that already happened; read the on-disk logs when investigating a prior crash.
+**Reading logs and crashes is allowed.** Use Read, Grep, or Glob on runtime console logs, crash reports, and Diagnostics for the host app on Simulator or device, including paths under `~/Library/Logs/` (for example `CoreSimulator`, `DiagnosticReports`), `~/Library/Developer/CoreSimulator/Devices/…/data/Library/Logs/`, log paths under yaml `derivedDataPath` (`Logs/`, `.xcresult`), and log file paths returned by MCP (`test_sim`). `debug_attach_sim` does not replace those for a crash that already happened; read the on-disk logs when investigating a prior crash.
 
 Do not **write** or **delete** under `DerivedData`, `SourcePackages`, `CoreSimulator`, `~/Library/Developer/Xcode`, `~/Library/Developer/CoreSimulator`, or `/Applications/Xcode.app` unless the user explicitly asks. Do not `kill` / `pkill` `xcodebuild` PIDs from `simulator-status.sh`.
 

@@ -22,7 +22,7 @@ Each script prints `gate-<name> PASS` or exits non-zero.
 | `run-gate-wrapper.sh` | `xcodebuildmcp-with-xcode-derived-data.sh --dry-run` (no npm/host bind), bootstrap, `resolve-derived-data-path` on harness |
 | `run-gate-sync.sh` | `resolve-derived-data-path.sh --sync-config` rewrites yaml DerivedData to Xcode-style path under `~/Library/Developer/Xcode/DerivedData/` |
 | `run-gate-derived-data-switch.sh` | Two harness projects: distinct Xcode DerivedData paths that match each yaml |
-| `run-gate-edges.sh` | No `simulator-hygiene` name; no osascript/SIGTERM/serve-sim --kill; `simctl shutdown` only in `simulator-shutdown.sh`; no deny hooks in `hooks.json`, resolve idempotency, `mcp.json` wiring, skill/bootstrap grep checks |
+| `run-gate-edges.sh` | No UI launcher scripts; no `simulator-hygiene` name; no osascript/SIGTERM; `simctl shutdown` only in `simulator-shutdown.sh`; no deny hooks in `hooks.json`, resolve idempotency, `mcp.json` wiring, skill/bootstrap grep checks |
 | `run-gate-miniap.sh` | Harness has `.xcodeproj` + valid `.xcodebuildmcp/config.yaml` (`projectPath` under harness, profiles present) |
 
 `find-harness-checkout.sh` resolves `tests/xcode-sample_project` when harness yaml exists.

@@ -6,7 +6,7 @@ Use this when the workspace is an iOS host checkout (not when editing the dev-io
 
 - **Canonical path:** `derivedDataPath` in this checkout’s `.xcodebuildmcp/config.yaml` (run `resolve-derived-data-path.sh --sync-config` once if paths may be stale).
 - **Rule:** At most **one** `~/Library/Developer/Xcode/DerivedData/<ProjectStem>-*` folder for this `projectPath`. Extra folders mean some MCP call ran **without** yaml `derivedDataPath` in **tool_input**.
-- **Every** `build_sim`, `build_run_sim`, and `test_sim`: pass **`derivedDataPath`** from the active yaml profile in **tool_input**, plus `projectPath`, `scheme`, `configuration`, and `simulatorId` on build tools. For tests, also pass **`testProductsPath`** on `build_sim` with `buildForTesting: true`; `test_sim` uses the path from [session-defaults.md](session-defaults.md) and simulator only.
+- **Every** `build_sim` and `test_sim`: pass **`derivedDataPath`** from the active yaml profile in **tool_input**, plus `projectPath`, `scheme`, `configuration`, and `simulatorId` on build tools. For tests, also pass **`testProductsPath`** on `build_sim` with `buildForTesting: true`; `test_sim` uses the path from [session-defaults.md](session-defaults.md) and simulator only.
 - Do not delete arbitrary DerivedData folders as a fix unless the user asks.
 
 ## Switching to this checkout (another project was open before)
@@ -23,7 +23,7 @@ Do not use Reload Window as a substitute for reading this yaml.
 Nothing in the plugin blocks these. Do not make the call:
 
 - Do not call MCP `clean`.
-- Do not call `build_sim`, `build_run_sim`, or `test_sim` without `projectPath`, `scheme`, `simulatorId`, and `derivedDataPath` from this host yaml on build tools.
+- Do not call `build_sim` or `test_sim` without `projectPath`, `scheme`, `simulatorId`, and `derivedDataPath` from this host yaml on build tools.
 - Do not pass `derivedDataPath`, `testProductsPath`, or result bundles under `XcodeBuildMCP/workspaces`, or under a DerivedData folder whose stem belongs to another `.xcodeproj`.
 - Do not call source-mode `test_sim` (no `testProductsPath` under this checkout’s Xcode DerivedData).
 - Do not pass a timestamped `*.xctestproducts` child to `build_sim`, and do not write that child into yaml `testProductsPath`. Which path `test_sim` uses: [session-defaults.md](session-defaults.md).

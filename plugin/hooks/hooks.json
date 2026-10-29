@@ -14,13 +14,13 @@
     "beforeMCPExecution": [
       {
         "command": "hooks/agent-session-lifecycle.sh",
-        "matcher": "build_sim|test_sim|build_run_sim|clean"
+        "matcher": "build_sim|test_sim|clean"
       }
     ],
     "afterMCPExecution": [
       {
         "command": "hooks/agent-session-lifecycle.sh",
-        "matcher": "build_sim|test_sim|build_run_sim|clean"
+        "matcher": "build_sim|test_sim|clean"
       }
     ],
     "stop": [

@@ -2,6 +2,10 @@
 
 You are in **someone else’s iOS app** (the workspace that is open). Build and test **that** `.xcodeproj`. Do not open, edit, or build the dev-ios / CursorPlugins repo. Do not stage plugin files into the app. Do not Reload Window to compile the app.
 
+## Simulator UI forbidden
+
+Never open Simulator.app and never launch an app in the Simulator. Allowed XcodeBuildMCP tools are `build_sim` and `test_sim` only. `test_sim` runs unit tests with mocks. Do not call `boot_sim`, `open_sim`, `build_run_sim`, `install_app_sim`, `launch_app_sim`, `stop_app_sim`, `screenshot`, `snapshot_ui`, `tap`, `touch`, `long_press`, `swipe`, `drag`, `gesture`, `button`, `key_press`, `key_sequence`, `type_text`, `wait_for_ui`, `record_sim_video`, or `debug_attach_sim`. Do not run `serve-sim`, `swiftui-preview-browser.py`, `open -a Simulator`, `simctl boot`, or `simctl launch`. If a task needs the Simulator window, stop and say this plugin does not launch Simulator UI.
+
 The plugin starts XcodeBuildMCP with session defaults **off**. Do **not** call `session_clear_defaults`, `session_set_defaults`, `session_show_defaults`, or `session_use_defaults_profile`. Do not learn the call by retrying `build_sim`.
 
 ## How to build or test this app
@@ -11,10 +15,10 @@ Working directory for the two scripts is the **app repo** (the folder that conta
 1. If the app has `docs/testing.md`, read it for scheme names and which tests to run. The MCP arguments still come from the steps below.
 2. If the app has no `.xcodebuildmcp/config.yaml` next to its `.xcodeproj`, run `bootstrap-xcodebuildmcp-config.sh` (optional `--xcodeproj`), then `resolve-derived-data-path.sh --sync-config`. That writes yaml in the **app** repo.
 3. If yaml exists but paths may be stale (another machine, Xcode upgrade), restart **XcodeBuildMCP** (launcher runs `resolve-derived-data-path.sh --sync-config` on start) or run that script once from the app directory.
-4. Read `sessionDefaultsProfiles.app` (compile or launch) or `.tests` (unit tests) from **that** yaml. Paste those values into the MCP call.
+4. Read `sessionDefaultsProfiles.app` (compile) or `.tests` (unit tests) from **that** yaml. Paste those values into the MCP call.
 5. On the first `build_sim` of the chat, the tool schema must include `scheme`, `projectPath`, `simulatorId`, and `derivedDataPath`. If it does not, stop and ask the user to restart **XcodeBuildMCP**. Do not call `build_sim` with a short schema.
 
-**Compile or launch** (`app` profile) — one call, all of these:
+**Compile** (`app` profile) — one `build_sim` call (never launch the app). Pass all of these:
 
 ```json
 {
@@ -26,7 +30,7 @@ Working directory for the two scripts is the **app repo** (the folder that conta
 }
 ```
 
-Use that object for `build_sim` (compile) or `build_run_sim` (launch).
+Use that object for `build_sim` only.
 
 **Unit tests** (`tests` profile) — two calls, in order:
 
@@ -65,7 +69,7 @@ Do not pass a timestamped child to `build_sim`. Do not write a timestamped child
 
 If the `tests` profile has `extraArgs`, pass them on `test_sim` only. Do not add `scheme`, `projectPath`, or `derivedDataPath` to that `test_sim`.
 
-One simulator (the yaml UDID). One `xcodebuild` at a time. Do not `boot_sim`, `open_sim`, or MCP `clean`.
+One simulator (the yaml UDID). One `xcodebuild` at a time. Do not `boot_sim`, `open_sim`, `build_run_sim`, or MCP `clean`.
 
 ## Where config lives
 
@@ -77,7 +81,7 @@ Top-level `sessionDefaults` in yaml may still seed the MCP process at startup. A
 
 ## Before every build or test
 
-Run **immediately before each** `build_sim`, `build_run_sim`, or `test_sim` (including `build_sim` with `buildForTesting: true`). When switching hosts or Cursor workspaces, read **this** host’s yaml again.
+Run **immediately before each** `build_sim` or `test_sim` (including `build_sim` with `buildForTesting: true`). When switching hosts or Cursor workspaces, read **this** host’s yaml again.
 
 1. Read `.xcodebuildmcp/config.yaml` (`sessionDefaultsProfiles.app` or `.tests` for the tool you will call). Resolve paths to absolute.
 2. Assert locally (from yaml only):
@@ -87,7 +91,7 @@ Run **immediately before each** `build_sim`, `build_run_sim`, or `test_sim` (inc
 
 ## Tool arguments (explicit per call)
 
-### `build_sim` and `build_run_sim` (profile `app`)
+### `build_sim` (profile `app`)
 
 Pass on **every** call:
 
@@ -131,6 +135,5 @@ A successful build or test of **this app** is an XcodeBuildMCP result from the c
 
 | Intent | Yaml profile | Typical tool |
 | --- | --- | --- |
-| Launch app | `app` | `build_run_sim` (full app profile args) |
 | Compile only | `app` | `build_sim` (full app profile args) |
 | Unit tests | `tests` | `build_sim` (`buildForTesting: true` + full tests profile args) then `test_sim` (chosen `testProductsPath` + simulator only) |

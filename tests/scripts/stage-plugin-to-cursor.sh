@@ -41,7 +41,7 @@ mcp = {
                 ".cursor/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
             ],
             "env": {
-                "XCODEBUILDMCP_ENABLED_WORKFLOWS": "simulator,ui-automation,debugging,logging",
+                "XCODEBUILDMCP_ENABLED_WORKFLOWS": "simulator,logging",
                 "XCODEBUILDMCP_DISABLE_XCODE_AUTO_SYNC": "true",
                 "NODE_OPTIONS": "",
             },

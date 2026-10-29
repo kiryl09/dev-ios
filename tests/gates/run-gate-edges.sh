@@ -15,7 +15,6 @@ STATUS="$ROOT/skills/ios-simulator-browser/scripts/simulator-status.sh"
 SHUTDOWN="$ROOT/skills/ios-simulator-browser/scripts/simulator-shutdown.sh"
 LIFECYCLE="$ROOT/hooks/agent-session-lifecycle.sh"
 SIM_SKILL="$ROOT/skills/ios-simulator-browser/SKILL.md"
-PREVIEW="$ROOT/skills/ios-simulator-browser/scripts/swiftui-preview-browser.py"
 
 [[ ! -f "$ROOT/skills/ios-simulator-browser/scripts/simulator-hygiene.sh" ]]
 ! grep -q 'kill-xcodebuild' "$STATUS"
@@ -26,9 +25,9 @@ grep -q 'simctl shutdown' "$SHUTDOWN"
 ! grep -q 'SIGTERM' "$SHUTDOWN"
 ! grep -q 'SIGTERM' "$LIFECYCLE"
 ! grep -q 'os.kill' "$LIFECYCLE"
-! grep -q 'serve-sim@latest --kill' "$SIM_SKILL"
 ! grep -q 'simulator-hygiene' "$SIM_SKILL"
-! grep -q '\["simctl", "terminate"' "$PREVIEW"
+[[ ! -f "$ROOT/skills/ios-simulator-browser/scripts/swiftui-preview-browser.py" ]]
+[[ ! -f "$ROOT/skills/ios-memgraph-leaks/scripts/capture_sim_memgraph.sh" ]]
 ! grep -q 'kill_project_xcodebuild' "$ROOT/hooks/lib/project_xcodebuild.py"
 ! grep -q 'probe_project_root' "$ROOT/skills/build-ios-apps/scripts/xcodebuildmcp-with-xcode-derived-data.sh"
 grep -q 'Do not call MCP `clean`' "$ROOT/skills/build-ios-apps/references/checkout-environment.md"

@@ -1,5 +1,5 @@
 ---
-description: iOS agent workflow — MCP routing, skill scripts, and visual proof
+description: iOS agent workflow — MCP routing and skill scripts
 alwaysApply: true
 ---
 
@@ -15,13 +15,13 @@ The open workspace is the app you build and test. Follow **How to build or test 
 
 Xcode and Simulator execution is MCP-only (`xcode-mcp-only.mdc`). Cursor native file tools (Read, Write, Grep, Glob) are the project source surface.
 
-- **XcodeBuildMCP** — agent execution surface for Simulator work: list/boot/build/run/test, UI automation (`snapshot_ui`, `tap`, `gesture`, `type_text`, `screenshot`), debugging (`debug_*`).
+- **XcodeBuildMCP** — `build_sim` and `test_sim` only. See **Simulator UI forbidden** below.
 
-Before **every** `build_sim`, `build_run_sim`, or `test_sim`, follow `skills/build-ios-apps/references/session-defaults.md`: read this host’s `.xcodebuildmcp/config.yaml` and pass **explicit** `projectPath`, `scheme`, `configuration`, `simulatorId`, and `derivedDataPath` on every build tool call (do not use `session_*` tools). Unit tests: `build_sim` with `buildForTesting: true` plus the full `tests` profile (including `testProductsPath`), then `test_sim` with the `testProductsPath` that file chooses and `simulatorId` only (do not use source-mode). Use `simulator-status.sh status` when you need inventory. Status scripts **never** terminate `xcodebuild` (killing mid-run corrupts simulator databases and SPM `SourcePackages`). After verification run `simulator-shutdown.sh shutdown` or `shutdown-all` only when `xcodebuild_count=0`. On chat `sessionEnd` or **Stop**, `hooks/agent-session-lifecycle.sh` only closes registry rows and does not send signals. In-flight **XcodeBuildMCP** `build_sim` / `test_sim` / `build_run_sim` / `clean` calls are recorded per `conversation_id` for diagnostics only; **hooks do not send signals to `xcodebuild`** (Stop/sessionEnd must not touch Xcode or other agents' builds). After the user presses **Stop** during `build_sim`, wait for the prior MCP run to finish or let the user recover manually. Do not start another `build_sim`, do not MCP `clean`, and do not delete `SourcePackages` until the previous one has completed or been aborted by Cursor/XcodeBuildMCP. Profiles:
-- `app` → `build_run_sim` / `build_sim` with all fields from yaml profile `app` in **tool_input** every time ([checkout-environment.md](skills/build-ios-apps/references/checkout-environment.md))
+Before **every** `build_sim` or `test_sim`, follow `skills/build-ios-apps/references/session-defaults.md`: read this host’s `.xcodebuildmcp/config.yaml` and pass **explicit** `projectPath`, `scheme`, `configuration`, `simulatorId`, and `derivedDataPath` on every build tool call (do not use `session_*` tools). Unit tests: `build_sim` with `buildForTesting: true` plus the full `tests` profile (including `testProductsPath`), then `test_sim` with the `testProductsPath` that file chooses and `simulatorId` only (do not use source-mode). Use `simulator-status.sh status` when you need inventory. Status scripts **never** terminate `xcodebuild` (killing mid-run corrupts simulator databases and SPM `SourcePackages`). After verification run `simulator-shutdown.sh shutdown` or `shutdown-all` only when `xcodebuild_count=0`. On chat `sessionEnd` or **Stop**, `hooks/agent-session-lifecycle.sh` only closes registry rows and does not send signals. In-flight **XcodeBuildMCP** `build_sim` / `test_sim` / `clean` calls are recorded per `conversation_id` for diagnostics only; **hooks do not send signals to `xcodebuild`** (Stop/sessionEnd must not touch Xcode or other agents' builds). After the user presses **Stop** during `build_sim`, wait for the prior MCP run to finish or let the user recover manually. Do not start another `build_sim`, do not MCP `clean`, and do not delete `SourcePackages` until the previous one has completed or been aborted by Cursor/XcodeBuildMCP. Profiles:
+- `app` → `build_sim` with all fields from yaml profile `app` in **tool_input** every time ([checkout-environment.md](skills/build-ios-apps/references/checkout-environment.md))
 - `tests` → `build_sim` (`buildForTesting: true` with full yaml `tests` profile in tool args) then `test_sim` (`testProductsPath` from [session-defaults.md](skills/build-ios-apps/references/session-defaults.md) + simulator from yaml)
 
-Yaml location, bootstrap, and argument lists: `skills/build-ios-apps/references/session-defaults.md`. One device only (configured UDID from yaml). Do not hardcode a device name or iOS version. Do not call `boot_sim` or `open_sim`. Never run `simctl clone`, boot a second simulator, or leave parallel-test clone devices (`Clone N of …`) running. Clones appear in `simulator-status.sh status`; shut them down with `simulator-shutdown.sh` when `xcodebuild_count=0`.
+Yaml location, bootstrap, and argument lists: `skills/build-ios-apps/references/session-defaults.md`. One device only (configured UDID from yaml). Do not hardcode a device name or iOS version. Do not call `boot_sim`, `open_sim`, or `build_run_sim`. Never run `simctl clone`, boot a second simulator, or leave parallel-test clone devices (`Clone N of …`) running. Clones appear in `simulator-status.sh status`; shut them down with `simulator-shutdown.sh` when `xcodebuild_count=0`.
 
 ## After every code change
 
@@ -29,7 +29,7 @@ Anyone (human or agent) who edits Swift, Objective-C, Xcode project files, or ot
 
 | Step | Requirement |
 | --- | --- |
-| Compile | Run **`build_sim`** (or `build_run_sim` / `test_sim`) via **XcodeBuildMCP** after reading [session-defaults.md](skills/build-ios-apps/references/session-defaults.md) and [checkout-environment.md](skills/build-ios-apps/references/checkout-environment.md) (full yaml profile in **tool_input** every build call). Never claim verification from Shell `xcodebuild`. Fix all **new** compile errors only after a successful build. |
+| Compile | Run **`build_sim`** via **XcodeBuildMCP** after reading [session-defaults.md](skills/build-ios-apps/references/session-defaults.md) and [checkout-environment.md](skills/build-ios-apps/references/checkout-environment.md) (full yaml profile in **tool_input** every build call). Never claim verification from Shell `xcodebuild`. Fix all **new** compile errors only after a successful build. |
 | Lint | Clear new warnings surfaced by **`build_sim`** and Cursor diagnostics in touched files. Do not leave new warnings in modified code. |
 | Done | **Must not** claim success without a fresh build result from this session. Answering a follow-up question does not replace a build after prior edits. |
 
@@ -37,17 +37,9 @@ If the build fails, fix the cause and rebuild. Do not hand off a broken tree.
 
 Host projects may document scheme names and test scope in `docs/testing.md` or `docs/development.md`; the **obligation to build** lives here in the plugin, not in host docs.
 
-## Visual proof
+## Simulator UI forbidden
 
-Prefer live mirror over static screenshots when the user wants to watch the app:
-
-1. `build_run_sim` (XcodeBuildMCP)
-2. `serve-sim` for the booted simulator UDID (background terminal)
-3. Open the printed localhost URL in **Cursor Browser Tab** or via browser MCP (`browser_navigate` → `browser_snapshot`)
-
-For isolated SwiftUI in a `.xcodeproj`, use `build_run_sim` plus browser mirror or `snapshot_ui` — not Xcode Canvas preview.
-
-For Swift Package previews with hot reload, use `ios-simulator-browser` and `swiftui-preview-browser.py`.
+Never open Simulator.app and never launch an app in the Simulator. Allowed XcodeBuildMCP tools are `build_sim` and `test_sim` only. `test_sim` runs unit tests with mocks. Do not call `boot_sim`, `open_sim`, `build_run_sim`, `install_app_sim`, `launch_app_sim`, `stop_app_sim`, `screenshot`, `snapshot_ui`, `tap`, `touch`, `long_press`, `swipe`, `drag`, `gesture`, `button`, `key_press`, `key_sequence`, `type_text`, `wait_for_ui`, `record_sim_video`, or `debug_attach_sim`. Do not run `serve-sim`, `swiftui-preview-browser.py`, `open -a Simulator`, `simctl boot`, or `simctl launch`. If a task needs the Simulator window, stop and say this plugin does not launch Simulator UI.
 
 ## Bundled skill scripts
 
@@ -61,8 +53,7 @@ Scripts under `plugins/dev-ios/skills/**/scripts/` are allowed when a loaded ski
 | `skills/ios-simulator-browser/scripts/simulator-status.sh` | `ios-simulator-browser` | Simulator inventory and `xcodebuild` load signals; `status` only |
 | `skills/ios-simulator-browser/scripts/simulator-shutdown.sh` | `ios-simulator-browser` | `simctl shutdown` of booted devices; no signals, no Simulator.app quit |
 | `skills/ios-ettrace-performance/scripts/*` | `ios-ettrace-performance` | ETTrace capture (see skill) |
-| `skills/ios-memgraph-leaks/scripts/*` | `ios-memgraph-leaks` | Memgraph capture (see skill) |
-| `skills/ios-simulator-browser/scripts/*` | `ios-simulator-browser` | Preview browser / `serve-sim` helpers (see skill) |
+| `skills/ios-memgraph-leaks/scripts/*` | `ios-memgraph-leaks` | Memgraph summarize (see skill) |
 
 Do not use MCP `list_sims` text alone to decide whether simulators are off. Use `ios-simulator-browser` → `simulator-status.sh status`.
 
@@ -76,5 +67,5 @@ When `test_sim` fails repeatedly for the same scope, read `build-ios-apps` → `
 
 ## Pairing skills
 
-- `ios-debugger-agent` pairs with `ios-simulator-browser` for simulator status and shutdown before and after build, test, or launch.
-- `ios-ettrace-performance` and `ios-memgraph-leaks` pair with `ios-debugger-agent` for build, launch, and UI driving.
+- `ios-debugger-agent` pairs with `ios-simulator-browser` for simulator status and shutdown before and after build or test.
+- `ios-ettrace-performance` and `ios-memgraph-leaks` pair with `ios-debugger-agent` for `build_sim` and `test_sim` only.

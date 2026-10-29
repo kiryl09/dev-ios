@@ -5,7 +5,11 @@ description: Capture and interpret iOS Simulator ETTrace profiles. Use when prof
 
 # iOS ETTrace Performance
 
-Use this skill to capture a focused, symbolicated ETTrace profile from an iOS simulator app. Pair it with `ios-debugger-agent` for Simulator build, launch, and UI driving through XcodeBuildMCP. Do not invent a second build path. Bundled scripts under this skill may run when this skill is loaded. Prefer simulator UDID and bundle id from `list_sims` and `get_app_bundle_id` rather than ad-hoc `xcrun simctl` as the first choice.
+## Simulator UI forbidden
+
+Never open Simulator.app and never launch an app in the Simulator. Allowed XcodeBuildMCP tools are `build_sim` and `test_sim` only. `test_sim` runs unit tests with mocks. Do not call `boot_sim`, `open_sim`, `build_run_sim`, `install_app_sim`, `launch_app_sim`, `stop_app_sim`, `screenshot`, `snapshot_ui`, `tap`, `touch`, `long_press`, `swipe`, `drag`, `gesture`, `button`, `key_press`, `key_sequence`, `type_text`, `wait_for_ui`, `record_sim_video`, or `debug_attach_sim`. Do not run `serve-sim`, `swiftui-preview-browser.py`, `open -a Simulator`, `simctl boot`, or `simctl launch`. If a task needs the Simulator window, stop and say this plugin does not launch Simulator UI.
+
+Use this skill to capture a focused, symbolicated ETTrace profile from an iOS simulator app. Do not launch the app and do not drive UI. Do not invent a second build path. Bundled scripts under this skill may run when this skill is loaded. Prefer simulator UDID and bundle id from `list_sims` and `get_app_bundle_id` rather than ad-hoc `xcrun simctl` as the first choice.
 
 ## Core Workflow
 
@@ -125,31 +129,7 @@ After ETTrace exits, read its symbolication summary. Treat meaningful first-part
 
 ## Capture
 
-For launch traces:
-
-```bash
-cd "$RUN_DIR"
-CAPTURE_MARKER="$RUN_DIR/.ettrace-capture-start"
-: > "$CAPTURE_MARKER"
-find "$RUN_DIR" -maxdepth 1 \( -name 'output.json' -o -name 'output_*.json' \) -delete
-ettrace --simulator --launch --verbose --dsyms "$DSYMS"
-```
-
-Use `--launch` only when measuring startup or first render. The first launch connection can force quit the app; relaunch from the simulator home screen rather than Xcode if prompted. For first-launch-after-install traces, temporarily set `ETTraceRunAtStartup=YES` in the app Info.plist, then run `ettrace --simulator` and launch from the home screen.
-
-For runtime flow traces:
-
-```bash
-cd "$RUN_DIR"
-CAPTURE_MARKER="$RUN_DIR/.ettrace-capture-start"
-: > "$CAPTURE_MARKER"
-find "$RUN_DIR" -maxdepth 1 \( -name 'output.json' -o -name 'output_*.json' \) -delete
-ettrace --simulator --verbose --dsyms "$DSYMS"
-```
-
-Start from a stable screen, start ETTrace, perform exactly one focused flow, wait until visible work is complete, then stop the runner. For wider attribution, add `--multi-thread`; otherwise start with the main thread.
-
-In Cursor, run `ettrace` in an interactive terminal session. Answer prompts when the runner asks. Without a TTY, the runner can exit without a useful trace.
+Do not run `ettrace --simulator` or launch the app in Simulator. Stop and ask the user to capture ETTrace outside this plugin if needed.
 
 ## Preserve Outputs
 

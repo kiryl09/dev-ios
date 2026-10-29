@@ -24,6 +24,5 @@ Cross-family order of operations. Per-family detail: sibling files in this direc
 | `mcp.json`, entry/launcher scripts | `run-gate-edges`, derived-data-switch gate, launcher, sample app |
 | `tests/xcode-sample_project/` | `run-gate-miniap`, sample app |
 | Skills/rules only (no scripts/hooks) | Gates optional; sample app if MCP routing text changed |
-| `ios-simulator-browser` preview launcher (`swiftui-preview-browser.py`, `lib/xcode_project.py`) | `python3 -m unittest discover -s tests/preview-browser` |
 
 When you add a test script or gate, add or update the matching `docs/tests/<family>.md` in the same change.

@@ -2,7 +2,7 @@
 
 Agents building or testing **an app** with the shipped plugin use [session-defaults.md](../../plugin/skills/build-ios-apps/references/session-defaults.md) in the host workspace, not this file.
 
-This doc is for changes **inside the CursorPlugins monorepo**. Simulator proof uses **XcodeBuildMCP only** (`build_sim`, `build_run_sim`, `test_sim`) with explicit arguments from the sample app’s yaml. Do not use Shell `xcodebuild`, `xcrun simctl`, or xcode-tools `BuildProject` / `RunAllTests` / `RunSomeTests` to claim the plugin “works”.
+This doc is for changes **inside the CursorPlugins monorepo**. Simulator proof uses **XcodeBuildMCP only** (`build_sim`, `test_sim`) with explicit arguments from the sample app’s yaml. Do not use Shell `xcodebuild`, `xcrun simctl`, or xcode-tools `BuildProject` / `RunAllTests` / `RunSomeTests` to claim the plugin “works”.
 
 ## What does not count as verification
 
