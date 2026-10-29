@@ -1,6 +1,6 @@
 # Host project: test-specific execution rules
 
-Use this reference when a host project's default unit-test workflow (`build_sim` with `buildForTesting: true` plus full yaml `tests` profile in tool args, then `test_sim` with `testProductsPath` and `simulatorId`; see session-defaults.md) is not enough for some scopes. The plugin stays generic; **each repo owns its knowledge base** for overrides.
+Use this reference when a host project's default unit-test workflow (`build_sim` with `buildForTesting: true` plus full yaml `tests` profile in tool args, then `test_sim` with the path from [session-defaults.md](session-defaults.md) and `simulatorId`) is not enough for some scopes. The plugin stays generic; **each repo owns its knowledge base** for overrides.
 
 ## Two-document split
 
@@ -21,7 +21,7 @@ Create or extend the specific-rules file when verification shows a scope needs m
 - Suite filter still times out → per-test split required
 - `signal kill`, Mach errors, or bootstrap failures tied to run pattern (parallel `test_sim`, clones, wedged simulator)
 - Multiple `-only-testing` flags in one call cause crashes
-- A scope needs a non-default flag, env var, or hygiene reset
+- A scope needs a non-default flag, env var, or `simulator-shutdown.sh shutdown-all`
 - `TEST_HOST` or scheme settings make a suite systematically slow
 
 Do **not** create rows preemptively for tests that pass under the default procedure.
@@ -34,7 +34,7 @@ Each row is one **test scope** (full target, suite, or single test identifier). 
 | --- | --- |
 | **Test scope** | Swift Testing / XCTest identifier: `Target/Suite`, `Target/Suite/testName()`, or `(full target)` |
 | **Why default run is heavy** | Factual: MCP timeout, clone spawn, launch cost, async length, flaky host state — not opinions |
-| **Additional parameters / constraints** | Exact `extraArgs`, filter strings, one-run-per-call rules, warm-up order, hygiene steps, fallback tool |
+| **Additional parameters / constraints** | Exact `extraArgs`, filter strings, one-run-per-call rules, warm-up order, shutdown steps, fallback tool |
 
 Optional trailing sections in the same file:
 
@@ -44,7 +44,7 @@ Optional trailing sections in the same file:
 
 ## Decision flow (belongs in testing policy, not here)
 
-Teach agents to narrow in order: full target (only when required) → one suite → one test per `test_sim`. Never two `test_sim` or two simulators at once. After one `build_sim` (`buildForTesting: true` with yaml paths in tool args), reuse the same yaml `derivedDataPath` and `testProductsPath` for sequential `test_sim` calls in that pass. Record successful narrowing in **this** file when the same scope fails again.
+Teach agents to narrow in order: full target (only when required) → one suite → one test per `test_sim`. Never two `test_sim` or two simulators at once. After one `build_sim` (`buildForTesting: true` with yaml paths in tool args), reuse the `test_sim` path from [session-defaults.md](session-defaults.md) for sequential `test_sim` calls in that pass. Record successful narrowing in **this** file when the same scope fails again.
 
 ## Agent obligation (living document)
 
@@ -72,7 +72,7 @@ Do not only run ad-hoc overrides in the session.
 
 ## Shared baseline
 
-Apply [Testing policy](testing.md) and `build-ios-apps` ([session-defaults.md](session-defaults.md): `build_sim` with `buildForTesting: true` and the full yaml `tests` profile, then `test_sim` with `testProductsPath` and `simulatorId` only). Simulator hygiene: `ios-simulator-browser`.
+Apply [Testing policy](testing.md) and `build-ios-apps` ([session-defaults.md](session-defaults.md): `build_sim` with `buildForTesting: true` and the full yaml `tests` profile, then `test_sim` with the path that file chooses and `simulatorId` only). Simulator status and shutdown: `ios-simulator-browser`.
 
 ## Rules by test scope
 
@@ -86,7 +86,7 @@ Apply [Testing policy](testing.md) and `build-ios-apps` ([session-defaults.md](s
 
 - `-32001` without pass/fail after default procedure
 - Narrowing (suite → per-test) was required
-- Documented fallback (hygiene reset, extra `extraArgs`) was required
+- Documented fallback (`simulator-shutdown.sh shutdown-all`, extra `extraArgs`) was required
 
 ## References
 
@@ -99,8 +99,9 @@ Apply [Testing policy](testing.md) and `build-ios-apps` ([session-defaults.md](s
 Unless a row says otherwise, host specific-rules should reference:
 
 - `resolve-derived-data-path.sh` (`build-ios-apps`) — `derivedDataPath` and yaml `testProductsPath` sync
-- Unit tests: `build_sim` (`buildForTesting: true` + yaml paths in tool args) → `test_sim` (same paths in tool args)
-- `simulator-hygiene.sh` (`ios-simulator-browser`) — authoritative booted state; `shutdown` / `shutdown-all`
+- Unit tests: `build_sim` (`buildForTesting: true` + yaml paths in tool args) → `test_sim` (path from [session-defaults.md](session-defaults.md))
+- `simulator-status.sh` (`ios-simulator-browser`) — authoritative booted state via `status`
+- `simulator-shutdown.sh` (`ios-simulator-browser`) — `shutdown` / `shutdown-all`
 - Anti-clone `test_sim` flags come from yaml `tests.extraArgs` after `resolve-derived-data-path.sh --sync-config` (`-parallel-testing-enabled` `NO`, `-maximum-parallel-testing-workers` `1`)
 
 The plugin forbids parallel `xcodebuild` and a second booted simulator. Host policy does not raise that cap.

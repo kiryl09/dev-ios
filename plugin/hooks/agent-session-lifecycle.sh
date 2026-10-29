@@ -6,9 +6,7 @@ meta=$(dd bs=65536 count=1 2>/dev/null)
 python3 - "$meta" <<'PY'
 import hashlib
 import json
-import os
 import re
-import signal
 import subprocess
 import sys
 import time
@@ -192,73 +190,9 @@ def expand_run_pids(registered: str, pids: list[int]) -> list[int]:
     return capture_run_pids(registered)
 
 
-def terminate_pids(pids: list[int]) -> list[int]:
-    for pid in pids:
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-    time.sleep(2)
-    survivors = []
-    for pid in pids:
-        try:
-            os.kill(pid, 0)
-            survivors.append(pid)
-        except ProcessLookupError:
-            pass
-    return survivors
-
-
 def latest_started(rows: list[dict], key: str) -> dict | None:
     matches = [row for row in rows if row.get("phase") == "started" and row.get("key") == key]
     return matches[-1] if matches else None
-
-
-def collect_tracked_pids(rows: list[dict]) -> list[int]:
-    pids: set[int] = set()
-    for row in rows:
-        if row.get("phase") != "tracked":
-            continue
-        for pid in row.get("pids") or []:
-            try:
-                pids.add(int(pid))
-            except (TypeError, ValueError):
-                continue
-    return sorted(pids)
-
-
-def in_flight_pids(rows: list[dict]) -> list[int]:
-    pids: set[int] = set(collect_tracked_pids(rows))
-    tracked_run_ids = {
-        row.get("run_id") for row in rows if row.get("phase") == "tracked" and row.get("run_id")
-    }
-    for row in rows:
-        if row.get("phase") != "started":
-            continue
-        run_id = row.get("run_id")
-        if run_id and run_id in tracked_run_ids:
-            continue
-        command = row.get("command") or ""
-        if not command:
-            continue
-        pids.update(expand_run_pids(command, capture_run_pids(command)))
-    return sorted(pids)
-
-
-def kill_pids(pids: list[int]) -> tuple[list[dict], list[dict]]:
-    killed: list[dict] = []
-    skipped: list[dict] = []
-    for pid in pids:
-        try:
-            os.kill(pid, 0)
-        except ProcessLookupError:
-            continue
-        survivors = terminate_pids([pid])
-        if survivors:
-            skipped.append({"pid": pid, "reason": "survived"})
-        else:
-            killed.append({"pid": pid})
-    return killed, skipped
 
 
 def mcp_build_tracked(payload: dict) -> tuple[bool, str]:
@@ -383,8 +317,6 @@ def rewrite_registry(rows: list[dict]) -> None:
 
 def force_stop_session_processes(clear_registry: bool) -> dict:
     rows = load_registry()
-    pids = in_flight_pids(rows)
-    killed, skipped = kill_pids(pids)
     mcp_closed = close_open_mcp_builds(rows, "stop_registry_only")
 
     if clear_registry:
@@ -396,46 +328,12 @@ def force_stop_session_processes(clear_registry: bool) -> dict:
     mode = "session_end" if clear_registry else "stop_aborted"
     return {
         "mode": mode,
-        "killed": killed,
-        "skipped": skipped,
         "mcp_closed": mcp_closed,
     }
 
 
 def cleanup_session_end() -> dict:
     return force_stop_session_processes(clear_registry=True)
-
-
-def cleanup_stale_diagnostics() -> dict:
-    rows = load_registry()
-    now = time.time()
-    killed = []
-    skipped = []
-
-    for row in rows:
-        if row.get("phase") != "tracked":
-            continue
-        if row.get("kind") != "diagnostic":
-            continue
-        started_at = float(row.get("started_ts") or row.get("ts") or 0)
-        if now - started_at < 30:
-            continue
-        for pid in row.get("pids") or []:
-            try:
-                pid_int = int(pid)
-            except (TypeError, ValueError):
-                continue
-            try:
-                os.kill(pid_int, 0)
-            except ProcessLookupError:
-                continue
-            survivors = terminate_pids([pid_int])
-            if survivors:
-                skipped.append({"pid": pid_int, "reason": "survived"})
-            else:
-                killed.append({"pid": pid_int})
-
-    return {"mode": "stale", "killed": killed, "skipped": skipped}
 
 
 if event == "beforeShellExecution":
@@ -511,33 +409,9 @@ elif event == "afterMCPExecution":
 elif event == "stop":
     status = payload.get("status") or ""
     if status in ("completed", "aborted", "error"):
-        result = force_stop_session_processes(clear_registry=False)
-        messages = []
-        if result["killed"]:
-            messages.append(
-                f"shell processes stopped: {result['killed']}"
-            )
-        if messages:
-            print(
-                json.dumps(
-                    {
-                        "agent_message": f"dev-ios: agent stop ({status}) — {'; '.join(messages)}"
-                    }
-                )
-            )
+        force_stop_session_processes(clear_registry=False)
 elif event == "sessionEnd":
-    result = cleanup_session_end()
-    messages = []
-    if result["killed"]:
-        messages.append(f"shell processes stopped: {result['killed']}")
-    if messages:
-        print(
-            json.dumps(
-                {
-                    "agent_message": f"dev-ios: session end — {'; '.join(messages)}"
-                }
-            )
-        )
+    cleanup_session_end()
 
 PY
 

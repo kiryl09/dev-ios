@@ -1,6 +1,0 @@
-{
-  "name": "dev-ios",
-  "version": "1.0.17",
-  "description": "Skills, rules, and MCP for building, running, and testing iOS apps in Cursor. Includes DerivedData scripts, ios-simulator-browser hygiene, and host test-specific rules guidance.",
-  "keywords": ["ios", "swift", "xcode", "simulator", "swiftui"]
-}

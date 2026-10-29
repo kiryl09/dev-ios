@@ -5,9 +5,9 @@ description: Build, run, and debug iOS apps on Simulator with XcodeBuildMCP. Use
 
 # iOS Debugger Agent
 
-XcodeBuildMCP is the default execution surface for Simulator build, run, test, UI automation, screenshots, and LLDB. Pair with `ios-simulator-browser` for simulator hygiene or a live mirror.
+XcodeBuildMCP is the default execution surface for Simulator build, run, test, UI automation, screenshots, and LLDB. Pair with `ios-simulator-browser` for simulator status, shutdown, or a live mirror.
 
-Call tools by short names (`list_sims`), not `mcp__XcodeBuildMCP__list_sims`. Never boot, shutdown, or test via ad-hoc Shell `xcrun`, `simctl`, or `xcodebuild`. The open workspace is the app. Follow **How to build or test this app** in `build-ios-apps` → [references/session-defaults.md](../build-ios-apps/references/session-defaults.md) before the first build or test. For simulator inventory, shutdown, and lifecycle rules, load `ios-simulator-browser` (`simulator-hygiene.sh`, not raw `simctl`).
+Call tools by short names (`list_sims`), not `mcp__XcodeBuildMCP__list_sims`. Never boot, shutdown, or test via ad-hoc Shell `xcrun`, `simctl`, or `xcodebuild`. The open workspace is the app. Follow **How to build or test this app** in `build-ios-apps` → [references/session-defaults.md](../build-ios-apps/references/session-defaults.md) before the first build or test. For simulator inventory and shutdown rules, load `ios-simulator-browser` (`simulator-status.sh` and `simulator-shutdown.sh`, not raw `simctl`).
 
 ## One at a time
 
@@ -20,7 +20,7 @@ Never run two Simulator builds, tests, or devices at once — not in this chat, 
 
 ## Session rules
 
-1. Never terminate `xcodebuild`, never `kill` PIDs from `status`, never MCP `clean`, never delete `SourcePackages` / DerivedData. Use `status` when inventory is unclear. After the last run in a verification pass **and** `xcodebuild_count=0`, run `shutdown` or `shutdown-all` when host policy requires it. Shell commands this chat started are force-stopped on `sessionEnd` via the plugin lifecycle hook.
+1. Never terminate `xcodebuild`, never `kill` PIDs from `status`, never MCP `clean`, never delete `SourcePackages` / DerivedData. Use `simulator-status.sh status` when inventory is unclear. After the last run in a verification pass **and** `xcodebuild_count=0`, run `simulator-shutdown.sh shutdown` or `shutdown-all` when host policy requires it.
 2. Never switch simulators or run a second device. Never call `boot_sim` or `open_sim`. `build_run_sim` / `test_sim` boot the configured UDID when needed.
 3. After a successful `build_run_sim`, verify the app with `snapshot_ui` or `screenshot` before taps or gestures.
 4. If the app is already built and only launch is requested, use `launch_app_sim`. If bundle id is unknown, call `get_sim_app_path` then `get_app_bundle_id`.
@@ -30,7 +30,7 @@ Never run two Simulator builds, tests, or devices at once — not in this chat, 
 
 `test_sim` runs the unit-test scheme. It does not present the app UI. Do not ask the user to sign in, finish onboarding, or tap the product during `test_sim`. Unit tests must use mocks or fixtures. App UI and signed-in sessions are a `build_run_sim` concern; the host project’s testing documentation owns whether launch requires a real account.
 
-Unit tests: follow [session-defaults.md](../build-ios-apps/references/session-defaults.md) before each `build_sim` (`buildForTesting: true` with full `tests` profile fields in tool args) and `test_sim` (`testProductsPath` and `simulatorId` from yaml only). Never source-only `test_sim`.
+Unit tests: follow [session-defaults.md](../build-ios-apps/references/session-defaults.md) before each `build_sim` (`buildForTesting: true` with full `tests` profile fields in tool args) and `test_sim` (the `testProductsPath` that file chooses, plus `simulatorId`). Never source-only `test_sim`.
 
 When `test_sim` returns a real pass/fail for a scope listed in the host project's test-specific rules doc, follow that file. How to create and maintain that file: `plugins/dev-ios/skills/build-ios-apps/references/test-specific-rules.md`. Do **not** treat MCP `-32001` or an in-flight `xcodebuild` as a reason to switch runners or kill the process.
 
@@ -38,7 +38,7 @@ When `test_sim` returns a real pass/fail for a scope listed in the host project'
 
 Cursor aborts the tool call while `xcodebuild` or CoreSimulator may still be running. This is not a test failure. Do not switch to `build_sim` or Shell while that process is alive. Do not start another `test_sim`, `build_sim`, or `build_run_sim` until `xcodebuild_count` is 0. License, “not agreed”, or first-launch text in any MCP error: stop and ask the user to finish that UI in Xcode.
 
-After the first `-32001`, run `plugins/dev-ios/skills/ios-simulator-browser/scripts/simulator-hygiene.sh status` (do not rely on `list_sims` text alone). Do **not** run `shutdown` before the in-flight `xcodebuild` exits. If `xcodebuild_count` or `stale_xcodebuild_count` > 0, wait or ask the user — SPM resolve can take hours; killing it corrupts `SourcePackages` (submodules/artifacts). Do not start another `build_sim`. Do not `rm` DerivedData or SourcePackages. Full decision tree: `ios-simulator-browser`.
+After the first `-32001`, run `plugins/dev-ios/skills/ios-simulator-browser/scripts/simulator-status.sh status` (do not rely on `list_sims` text alone). Do **not** run `simulator-shutdown.sh` before the in-flight `xcodebuild` exits. If `xcodebuild_count` or `stale_xcodebuild_count` > 0, wait or ask the user — SPM resolve can take hours; killing it corrupts `SourcePackages` (submodules/artifacts). Do not start another `build_sim`. Do not `rm` DerivedData or SourcePackages. Full decision tree: `ios-simulator-browser`.
 
 ## UI interaction and debugging
 

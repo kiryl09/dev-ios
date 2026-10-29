@@ -50,9 +50,33 @@ print("\t".join([grab("projectPath"), grab("derivedDataPath"), grab("scheme"), g
 PY
 }
 
+resolve_test_products() {
+  local products="$1"
+  local scheme="$2"
+  if [[ -L "$products" ]]; then
+    printf '%s\n' "$products"
+    return
+  fi
+  local newest="" child base
+  shopt -s nullglob
+  for child in "$products/${scheme}"_????-??-??_??-??-??.xctestproducts; do
+    [[ -d "$child" ]] || continue
+    base="$(basename "$child")"
+    if [[ -z "$newest" || "$base" > "$(basename "$newest")" ]]; then
+      newest="$child"
+    fi
+  done
+  shopt -u nullglob
+  if [[ -n "$newest" ]]; then
+    printf '%s\n' "$newest"
+  else
+    printf '%s\n' "$products"
+  fi
+}
+
 run_host_tests() {
   local host="$1"
-  local project dd scheme products sim_id
+  local project dd scheme products sim_id run_products
   IFS=$'\t' read -r project dd scheme products sim_id < <(read_tests_block "$host")
   local dest="platform=iOS Simulator,id=$sim_id"
   echo "== build-for-testing $(basename "$host") =="
@@ -63,11 +87,12 @@ run_host_tests() {
     -derivedDataPath "$dd" \
     -testProductsPath "$products" \
     build-for-testing
-  echo "== test-without-building $(basename "$host") =="
+  run_products="$(resolve_test_products "$products" "$scheme")"
+  echo "== test-without-building $(basename "$host") $run_products =="
   xcodebuild \
     -destination "$dest" \
     -derivedDataPath "$dd" \
-    -testProductsPath "$products" \
+    -testProductsPath "$run_products" \
     test-without-building
 }
 

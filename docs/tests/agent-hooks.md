@@ -11,6 +11,6 @@ Manual chat check after `hooks/` or `hooks.json` changes. Complements [gates.md]
 
 | Check | How |
 | --- | --- |
-| Session lifecycle | Agent Shell long `sleep`; **Stop** chat → child shell ends; MCP `xcodebuild` not killed |
+| Session lifecycle | Stop and sessionEnd do not send signals; registry closes; long-running shell and MCP `xcodebuild` keep running |
 
 Hooks must not deny Shell or MCP. Scope and Simulator limits are skills and rules (`build-ios-apps`, `dev-ios-scope.mdc`, `xcode-mcp-only.mdc`).

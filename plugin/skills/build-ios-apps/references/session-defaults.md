@@ -46,10 +46,22 @@ That object is `build_sim` only. Then `test_sim` with only:
 
 ```json
 {
-  "testProductsPath": "<same tests.testProductsPath>",
+  "testProductsPath": "<path chosen below>",
   "simulatorId": "<same tests.simulatorId>"
 }
 ```
+
+Choose `testProductsPath` for `test_sim` after `build_sim` returns. List the directories inside the yaml `tests.testProductsPath`.
+
+1. If that yaml path is a symlink, pass the yaml path.
+2. Otherwise, if it contains directories named `<tests.scheme>_yyyy-MM-dd_HH-mm-ss.xctestproducts`, pass the newest one by that timestamp.
+3. Otherwise pass the yaml path.
+
+Every `test_sim` until the next `build_sim` uses that same chosen path. The next `build_sim` still receives the yaml path. Choose again after that build returns.
+
+Do not pass a timestamped child to `build_sim`. Do not write a timestamped child into yaml `testProductsPath`. The chosen path is the yaml path or a child of it, under the same DerivedData folder.
+
+`Info.plist`, `Binaries`, and `Tests` directly inside the yaml path can stay from the first build after later builds add timestamped children. Leave them. Do not set `SWIFT_ENABLE_INCREMENTAL_COMPILATION=NO`, delete `.o` files, delete the test binary, edit the Xcode project, or change test source to force a relink. Do not call `clean` or erase DerivedData.
 
 If the `tests` profile has `extraArgs`, pass them on `test_sim` only. Do not add `scheme`, `projectPath`, or `derivedDataPath` to that `test_sim`.
 
@@ -98,7 +110,7 @@ All of the above must appear in the **same** `build_sim` call. Prepared-test mod
 
 Pass:
 
-- `testProductsPath` from yaml (same path as the preceding `build_sim`)
+- `testProductsPath` chosen in **Unit tests** above (yaml path, or the newest timestamped child)
 - `simulatorId` (or `simulatorName`)
 
 Do **not** pass `scheme`, `projectPath`, `workspacePath`, `configuration`, or `derivedDataPath` with `testProductsPath` (prepared mode rejects source inputs).
@@ -121,4 +133,4 @@ A successful build or test of **this app** is an XcodeBuildMCP result from the c
 | --- | --- | --- |
 | Launch app | `app` | `build_run_sim` (full app profile args) |
 | Compile only | `app` | `build_sim` (full app profile args) |
-| Unit tests | `tests` | `build_sim` (`buildForTesting: true` + full tests profile args) then `test_sim` (`testProductsPath` + simulator only) |
+| Unit tests | `tests` | `build_sim` (`buildForTesting: true` + full tests profile args) then `test_sim` (chosen `testProductsPath` + simulator only) |

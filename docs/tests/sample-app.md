@@ -30,7 +30,7 @@ Use XcodeBuildMCP only (not Shell `xcodebuild`). Full bar: [verification-mcp.md]
 
 1. Per [session-defaults.md](../../plugin/skills/build-ios-apps/references/session-defaults.md): `build_sim` with full profile `app` fields from yaml (no `session_*` tools).
 2. `build_run_sim` with the same app profile args.
-3. `build_sim` (`buildForTesting: true` with full profile `tests` fields from yaml), then `test_sim` with `testProductsPath` and `simulatorId` only (not source-mode; [session-defaults.md](../../plugin/skills/build-ios-apps/references/session-defaults.md)).
+3. `build_sim` (`buildForTesting: true` with full profile `tests` fields from yaml), then `test_sim` per [session-defaults.md](../../plugin/skills/build-ios-apps/references/session-defaults.md) (not source-mode).
 
 Optional: `snapshot_ui` after launch ([ios-debugger-agent](../../plugin/skills/ios-debugger-agent/SKILL.md)).
 

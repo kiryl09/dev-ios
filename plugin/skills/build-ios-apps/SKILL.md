@@ -13,8 +13,8 @@ Cursor router for iOS/watchOS work. Read this skill first, then read every speci
 
 | Task | Skill |
 | --- | --- |
-| Build, run, test, tap, logs, simulator UI, debug | `ios-debugger-agent` and `ios-simulator-browser` (hygiene) |
-| Live simulator mirror, simulator hygiene, or SPM preview hot reload | `ios-simulator-browser` |
+| Build, run, test, tap, logs, simulator UI, debug | `ios-debugger-agent` and `ios-simulator-browser` (status and shutdown) |
+| Live simulator mirror, simulator status/shutdown, or SPM preview hot reload | `ios-simulator-browser` |
 | SwiftUI visual check in this `.xcodeproj` | `ios-debugger-agent` (`build_run_sim`, `snapshot_ui`) or `ios-simulator-browser` (browser mirror) |
 | ETTrace CPU profiling | `ios-ettrace-performance` (pair `ios-debugger-agent`) |
 | Memgraph leak investigation | `ios-memgraph-leaks` (pair `ios-debugger-agent`) |
@@ -38,7 +38,7 @@ Do not add Sweetpad, xcode-build-server, or Shell `xcodebuild` / `xcrun` / `simc
 
 The open workspace is the app. Start at **How to build or test this app** in [references/session-defaults.md](references/session-defaults.md). Do not build the plugin repo and do not learn the MCP shape by retrying tools.
 
-**Before every** `build_sim`, `build_run_sim`, or `test_sim`, follow [references/session-defaults.md](references/session-defaults.md) and [references/checkout-environment.md](references/checkout-environment.md) (canonical; do not paraphrase elsewhere). Read this host’s yaml and pass the full profile in **tool_input** on every build call. Profile `app` → `build_run_sim` / `build_sim`; profile `tests` → `build_sim` (`buildForTesting: true` + full tests profile) then `test_sim` (`testProductsPath` + simulator only). **One** `xcodebuild` and **one** booted simulator (configured UDID). Sequential `test_sim` only. Host docs do not override that.
+**Before every** `build_sim`, `build_run_sim`, or `test_sim`, follow [references/session-defaults.md](references/session-defaults.md) and [references/checkout-environment.md](references/checkout-environment.md) (canonical; do not paraphrase elsewhere). Read this host’s yaml and pass the full profile in **tool_input** on every build call. Profile `app` → `build_run_sim` / `build_sim`; profile `tests` → `build_sim` (`buildForTesting: true` + full tests profile) then `test_sim` (path from [session-defaults.md](references/session-defaults.md) + simulator only). **One** `xcodebuild` and **one** booted simulator (configured UDID). Sequential `test_sim` only. Host docs do not override that.
 
 **Verification:** For the open app, a passing `build_sim` / `test_sim` with args from that app’s yaml is the result. Shell `xcodebuild` does not count.
 
@@ -50,14 +50,11 @@ If the open app has no yaml yet: run `bootstrap-xcodebuildmcp-config.sh` from th
 
 Host yaml is refreshed on each XcodeBuildMCP start via the launcher; run `resolve-derived-data-path.sh --sync-config` from the app directory only when MCP was not restarted after a machine or Xcode change.
 
-Unit tests must overwrite stable paths in that same DerivedData folder:
-
-1. `build_sim` with `buildForTesting: true`: pass `projectPath`, `scheme`, `configuration`, `simulatorId`, `derivedDataPath`, and `testProductsPath` from the `tests` profile in one tool call (`session-defaults.md`). `tests` profile `extraArgs` hold `-resultBundlePath` under `$DD/Logs/` (`--sync-config`).
-2. `test_sim` with `testProductsPath` and `simulatorId` from yaml only (never source-only; no `derivedDataPath` on prepared `test_sim`). Do not delete DerivedData folders as a “fix”.
+Unit tests use that same DerivedData folder. `build_sim` with `buildForTesting: true` passes the yaml `tests` profile, including `testProductsPath`, in one tool call. `test_sim` passes the path [session-defaults.md](references/session-defaults.md) chooses, plus `simulatorId` (never source-only; no `derivedDataPath` on prepared `test_sim`). `tests` profile `extraArgs` go on `test_sim` only. Do not delete DerivedData folders as a “fix”.
 
 Do not call source-mode `test_sim` (no `testProductsPath`). Do not call `clean` or erase DerivedData / `SourcePackages` unless the user asks. Refusals: [references/checkout-environment.md](references/checkout-environment.md). After MCP timeout, wait for the existing `xcodebuild`; a second `build_sim` during package resolve corrupts SPM checkouts. Watch disk with `df`; incremental builds should not drop Avail like a full second copy.
 
-Simulator inventory, shutdown, lifecycle, and stale **Simulator.app** detection: load `ios-simulator-browser` (`simulator-hygiene.sh`).
+Simulator status: `simulator-status.sh`. Simulator shutdown: `simulator-shutdown.sh`. Load `ios-simulator-browser`.
 
 ## Bundled scripts (`build-ios-apps`)
 
@@ -67,7 +64,7 @@ Simulator inventory, shutdown, lifecycle, and stale **Simulator.app** detection:
 | `scripts/bootstrap-xcodebuildmcp-config.sh` | Create `.xcodebuildmcp/config.yaml`; host pick via `xcodebuildmcp-host-dir.sh` (README) |
 | `scripts/xcodebuildmcp-with-xcode-derived-data.sh` | MCP entry in `mcp.json` (pinned npm; `XCODEBUILDMCP_DISABLE_SESSION_DEFAULTS=true`) |
 
-Host test-scope rows belong in the host project's `docs/testing.md`, not this plugin. Simulator hygiene commands live in `ios-simulator-browser`. Parallel builds/simulators are forbidden here.
+Host test-scope rows belong in the host project's `docs/testing.md`, not this plugin. Simulator status and shutdown commands live in `ios-simulator-browser`. Parallel builds/simulators are forbidden here.
 
 ## Host test-specific rules (knowledge base)
 

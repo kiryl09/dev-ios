@@ -470,12 +470,6 @@ def build_and_launch_package(state: LauncherState) -> None:
     if not app_path.is_dir():
         raise ValueError(f"Build succeeded but app bundle was not found: {app_path}")
 
-    run(
-        "xcrun",
-        ["simctl", "terminate", state.udid, BUNDLE_ID],
-        allow_failure=True,
-        log_output=True,
-    )
     run("xcrun", ["simctl", "install", state.udid, str(app_path)], log_output=True)
     state.data_container = Path(
         run(

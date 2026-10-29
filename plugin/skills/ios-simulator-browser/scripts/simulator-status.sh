@@ -3,51 +3,30 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: simulator-hygiene.sh <command> [options]
+Usage: simulator-status.sh status [options]
 
-Authoritative simulator inventory and shutdown. Never sends signals to xcodebuild (avoids corrupting simulator databases and SPM checkouts).
+Authoritative simulator inventory. Does not shut down devices, quit Simulator.app, or send signals.
 
 Commands:
   status              Print booted/booting devices, Simulator.app, and background load
-  shutdown            Shut down simulators (default: all except configured UDID)
-  shutdown-all        Shut down every booted simulator
 
 Options:
   --json              Machine-readable output for status
   --check             With status: exit 1 when background_load=true
-  --keep-udid UUID    Keep this UDID booted during shutdown (overrides config)
-  --all               With shutdown: shut down configured device too (same as shutdown-all)
   --stale-seconds N   Mark xcodebuild older than N seconds as stale in status only (default: 7200; not a kill signal)
 
-Reads simulatorId and projectPath from .xcodebuildmcp/config.yaml.
+Reads projectPath from .xcodebuildmcp/config.yaml.
 Run from the host project checkout.
 EOF
 }
 
-HYGIENE_SCRIPT_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
-HYGIENE_HOST_DIR_LIB="$HYGIENE_SCRIPT_DIR/../../build-ios-apps/scripts/xcodebuildmcp-host-dir.sh"
+STATUS_SCRIPT_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+STATUS_HOST_DIR_LIB="$STATUS_SCRIPT_DIR/../../build-ios-apps/scripts/xcodebuildmcp-host-dir.sh"
 # shellcheck source=../../build-ios-apps/scripts/xcodebuildmcp-host-dir.sh
-source "$HYGIENE_HOST_DIR_LIB"
+source "$STATUS_HOST_DIR_LIB"
 
 find_repo_root() {
   xcodebuildmcp_find_host_dir 0
-}
-
-read_configured_udid() {
-  python3 - "$1" <<'PY'
-import re
-import sys
-from pathlib import Path
-
-text = Path(sys.argv[1]).read_text()
-block = re.search(
-    r"tests:\s*\n(?:[ \t].*\n)*?[ \t]+simulatorId:\s*(\S+)",
-    text,
-)
-if not block:
-    raise SystemExit("error: tests.simulatorId not found in config")
-print(block.group(1))
-PY
 }
 
 read_project_path() {
@@ -67,11 +46,6 @@ if not project_path.is_absolute():
     project_path = repo_root / project_path
 print(project_path.resolve())
 PY
-}
-
-simulator_app_running() {
-  pgrep -qx Simulator && return 0
-  return 1
 }
 
 list_active_devices_json() {
@@ -274,87 +248,10 @@ PY
   workload_python human "$project_path" "$stale_seconds" "$simulator_json"
 }
 
-shutdown_devices() {
-  local keep_udid="$1"
-  local shutdown_all="$2"
-  local json_output="$3"
-
-  python3 - "$json_output" "$keep_udid" "$shutdown_all" <<'PY'
-import json
-import subprocess
-import sys
-
-payload = json.loads(sys.argv[1])
-keep_udid = sys.argv[2]
-shutdown_all = sys.argv[3] == "1"
-active_states = {"Booted", "Booting"}
-
-targets = []
-for entries in payload.get("devices", {}).values():
-    for entry in entries:
-        state = entry.get("state", "")
-        if state not in active_states:
-            continue
-        udid = entry.get("udid", "")
-        if not shutdown_all and keep_udid and udid == keep_udid:
-            continue
-        targets.append((udid, entry.get("name", ""), state))
-
-for udid, name, state in targets:
-    result = subprocess.run(
-        ["xcrun", "simctl", "shutdown", udid],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        err = (result.stderr or result.stdout or "unknown error").strip()
-        print(f"failed\t{udid}\t{name}\t{err}", file=sys.stderr)
-        raise SystemExit(1)
-    print(f"shutdown\t{udid}\t{name}")
-
-if not targets:
-    print("nothing_to_shutdown")
-PY
-
-  if simulator_app_running; then
-    sleep 1
-    local remaining
-    remaining="$(xcrun simctl list devices booted 2>/dev/null | grep -c '(Booted)' || true)"
-    if [[ "${remaining:-0}" -eq 0 ]]; then
-      osascript -e 'tell application "Simulator" to quit' >/dev/null 2>&1 || true
-      print_quit_result
-    fi
-  fi
-}
-
-print_quit_result() {
-  if simulator_app_running; then
-    echo "simulator_app_still_running=yes"
-  else
-    echo "simulator_app_still_running=no"
-  fi
-}
-
 json_field() {
   local json_payload="$1"
   local expression="$2"
   printf '%s' "$json_payload" | python3 -c "import json,sys; data=json.load(sys.stdin); print(${expression})"
-}
-
-refuse_if_project_xcodebuild() {
-  local project_path="$1"
-  local stale_seconds="$2"
-  local devices_json="$3"
-  local simulator_json workload_json count
-  simulator_json="$(simulator_status_json "$devices_json")"
-  workload_json="$(workload_python json "$project_path" "$stale_seconds" "$simulator_json")"
-  count="$(json_field "$workload_json" 'data["xcodebuild_count"]')"
-  if [[ "${count:-0}" -gt 0 ]]; then
-    echo "error: project xcodebuild still running (count=${count}); not shutting down simulators" >&2
-    echo "wait_for_xcodebuild=yes"
-    return 1
-  fi
-  return 0
 }
 
 command="${1:-}"
@@ -362,23 +259,12 @@ shift || true
 
 json_flag=0
 check_flag=0
-keep_udid=""
-shutdown_all=0
 stale_seconds=7200
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --json) json_flag=1 ;;
     --check) check_flag=1 ;;
-    --keep-udid)
-      shift
-      keep_udid="${1:-}"
-      [[ -n "$keep_udid" ]] || {
-        echo "error: --keep-udid requires a value" >&2
-        exit 1
-      }
-      ;;
-    --all) shutdown_all=1 ;;
     --stale-seconds)
       shift
       stale_seconds="${1:-}"
@@ -412,9 +298,6 @@ fi
 
 config_path="$repo_root/.xcodebuildmcp/config.yaml"
 project_path="$(read_project_path "$config_path" "$repo_root")"
-if [[ -z "$keep_udid" && "$shutdown_all" -eq 0 ]]; then
-  keep_udid="$(read_configured_udid "$config_path")"
-fi
 
 devices_json="$(list_active_devices_json)"
 status_exit=0
@@ -440,14 +323,6 @@ PY
       [[ "$background_load" != "true" ]] || status_exit=1
     fi
     exit "$status_exit"
-    ;;
-  shutdown)
-    refuse_if_project_xcodebuild "$project_path" "$stale_seconds" "$devices_json"
-    shutdown_devices "$keep_udid" "$shutdown_all" "$devices_json"
-    ;;
-  shutdown-all)
-    refuse_if_project_xcodebuild "$project_path" "$stale_seconds" "$devices_json"
-    shutdown_devices "" 1 "$devices_json"
     ;;
   *)
     echo "error: unknown command: $command" >&2
