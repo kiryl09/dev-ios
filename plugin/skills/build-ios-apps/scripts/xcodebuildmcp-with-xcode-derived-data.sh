@@ -10,6 +10,13 @@ for arg in "$@"; do
   esac
 done
 
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  XBMCP_PIN_VERSION="$(tr -d '[:space:]' <"$SCRIPT_DIR/xcodebuildmcp-pinned-version")"
+  [[ -n "$XBMCP_PIN_VERSION" ]]
+  echo "xcodebuildmcp launcher ready (explicit tool args; session defaults disabled)"
+  exit 0
+fi
+
 XBMCP_CACHE="${XCODEBUILDMCP_NPM_CACHE:-$SCRIPT_DIR/xcodebuildmcp-npm-cache}"
 XBMCP_PIN_VERSION="$(tr -d '[:space:]' <"$SCRIPT_DIR/xcodebuildmcp-pinned-version")"
 xbmcp_pkg_json="$XBMCP_CACHE/node_modules/xcodebuildmcp/package.json"
@@ -28,9 +35,5 @@ export NODE_PATH="$XBMCP_CACHE/node_modules${NODE_PATH:+:$NODE_PATH}"
 "$SCRIPT_DIR/resolve-derived-data-path.sh" --sync-config >/dev/null 2>&1 || true
 
 echo "xcodebuildmcp launcher ready (explicit tool args; session defaults disabled)"
-
-if [[ "$DRY_RUN" -eq 1 ]]; then
-  exit 0
-fi
 
 exec python3 "$SCRIPT_DIR/xcodebuildmcp-mcp-entry.py" mcp

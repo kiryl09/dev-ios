@@ -74,6 +74,8 @@ workload_python() {
   local plugin_lib
   plugin_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/hooks/lib"
   python3 - "$plugin_lib" "$@" <<'PY'
+from __future__ import annotations
+
 import json
 import os
 import sys

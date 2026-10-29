@@ -4,6 +4,8 @@ set -eu
 meta=$(dd bs=65536 count=1 2>/dev/null)
 
 python3 - "$meta" <<'PY'
+from __future__ import annotations
+
 import hashlib
 import json
 import re

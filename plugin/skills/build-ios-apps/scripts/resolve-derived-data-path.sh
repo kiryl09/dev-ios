@@ -167,6 +167,8 @@ if [[ "$sync_config" -eq 1 ]]; then
   xcresult_path="$derived_data_path/Logs/${tests_scheme}.xcresult"
   products_path="$derived_data_path/${tests_scheme}.xctestproducts"
   python3 - "$config_path" "$derived_data_path" "$resolved_project" "$tests_scheme" "$xcresult_path" "$products_path" <<'PY'
+from __future__ import annotations
+
 import re
 import sys
 from pathlib import Path
